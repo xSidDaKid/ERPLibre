@@ -20,7 +20,8 @@
   <remote name="openeducat" fetch="https://github.com/ERPLibre/"/>
   <remote name="pledra" fetch="https://github.com/ERPLibre/"/>
   <remote name="tegin" fetch="https://github.com/ERPLibre/"/>
-  
+  <remote name="TechnoLibreAccorderie" fetch="https://github.com/TechnoLibre/"/>
+
   <default remote="ERPLibre" revision="12.0" sync-j="4" sync-c="true"/>
   
   <project name="OpenHRMS.git" path="addons/CybroOdoo_OpenHRMS" remote="CybroOdoo" groups="addons"/>
@@ -88,6 +89,7 @@
   <project name="muk_web.git" path="addons/muk-it_muk_web" remote="muk-it" revision="12.0_fix_web_conflict_menu" groups="addons"/>
   <project name="muk_website.git" path="addons/muk-it_muk_website" remote="muk-it" revision="12.0_remove_autoinstall" groups="addons"/>
   <project name="multi-company.git" path="addons/OCA_multi-company" remote="OCA" groups="addons"/>
+  <project name="odoo_accorderie.git" path="addons/TechnoLibre_odoo_accorderie" remote="TechnoLibreAccorderie" revision="12.0_dev" groups="addons"/>
   <project name="odoo-base-addons.git" path="addons/Numigi_odoo-base-addons" remote="Numigi" revision="12.0_dev" groups="addons"/>
   <project name="odoo-business-spending-management-quebec-canada.git" path="addons/MathBenTech_odoo-business-spending-management-quebec-canada" remote="MathBenTech" revision="12.0_sale_order_line_timesheet_attribution" groups="addons"/>
   <project name="odoo-cloud-platform.git" path="addons/camptocamp_odoo-cloud-platform" remote="camptocamp" groups="addons"/>
