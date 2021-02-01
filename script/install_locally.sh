@@ -177,7 +177,7 @@ if [[ ! -d "./addons/addons" ]]; then
 fi
 
 PYENV_PATH=~/.pyenv
-PYENV_VERSION_PATH=${PYENV_PATH}/versions/3.7.7
+PYENV_VERSION_PATH=${PYENV_PATH}/versions/3.8.7
 PYTHON_EXEC=${PYENV_VERSION_PATH}/bin/python
 POETRY_PATH=~/.poetry
 VENV_PATH=./.venv
@@ -195,11 +195,11 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
 if [[ ! -d "${PYENV_VERSION_PATH}" ]]; then
-    echo -e "\n---- Installing python 3.7.7 with pyenv in ${PYENV_VERSION_PATH} ----"
-    yes n|pyenv install 3.7.7
+    echo -e "\n---- Installing python 3.8.7 with pyenv in ${PYENV_VERSION_PATH} ----"
+    yes n|pyenv install 3.8.7
 fi
 
-pyenv local 3.7.7
+pyenv local 3.8.7
 
 if [[ ! -d "${POETRY_PATH}" ]]; then
     # Delete directory ~/.poetry and .venv to force update to new version
@@ -239,4 +239,4 @@ rm -rf artifacts
 
 # Link for dev
 echo -e "\n---- Add link dependency in site-packages of Python ----"
-ln -fs ${EL_HOME_ODOO}/odoo ${EL_HOME}/.venv/lib/python3.7/site-packages/
+ln -fs ${EL_HOME_ODOO}/odoo ${EL_HOME}/.venv/lib/python3.8/site-packages/
