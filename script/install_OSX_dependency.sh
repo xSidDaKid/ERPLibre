@@ -35,8 +35,8 @@ echo  "\n---- Installing nodeJS NPM and rtlcss for LTR support ----"
 brew install nodejs npm openssl
 sudo npm install -g rtlcss
 sudo npm install -g less
-yes n|pyenv install 3.8.7
-pyenv local 3.8.7
+yes n|pyenv install 3.7.9
+pyenv local 3.7.9
 
 echo 'export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"' >> ~/.zshrc
 
