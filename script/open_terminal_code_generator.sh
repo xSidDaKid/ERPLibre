@@ -5,6 +5,7 @@ paths=(
 "${working_path}/"
 "${working_path}/addons/TechnoLibre_odoo-code-generator"
 "${working_path}/addons/TechnoLibre_odoo-code-generator-template"
+"${working_path}/addons/TechnoLibre_odoo_accorderie"
 
 )
 cmd_before="cd "

@@ -213,6 +213,65 @@ image_diff_base_website:
 	#./script/manifest/compare_backup.py --backup_file_1 ./image_db/erplibre_base.zip --backup_file_2 ./image_db/erplibre_website.zip
 	./script/manifest/compare_backup.py --backup_1 erplibre_base --backup_2 erplibre_website
 
+#############################
+#  Accorderie installation  #
+#############################
+.PHONY: accorderie_install_migrate_mysql
+accorderie_install_migrate_mysql:
+	./script/db_restore.py --database code_generator_accorderie_base --image code_generator_accorderie_base
+	-rm ./addons/TechnoLibre_odoo_accorderie/accorderie_migrate_mysql/.cache
+	./script/addons/install_addons_dev.sh code_generator_accorderie_base accorderie_migrate_mysql
+
+.PHONY: accorderie_install_accorderie_canada
+accorderie_install_accorderie_canada:
+	./script/db_restore.py --database template
+	./script/addons/install_addons.sh template accorderie_canada
+
+.PHONY: accorderie_install_accorderie_canada_ddb
+accorderie_install_accorderie_canada_ddb:
+	./script/db_restore.py --database template
+	./script/addons/install_addons.sh template accorderie_canada_ddb
+
+.PHONY: accorderie_install_accorderie_canada_old_view
+accorderie_install_accorderie_canada_old_view:
+	./script/db_restore.py --database template
+	./script/addons/install_addons.sh template accorderie_canada_old_view
+
+.PHONY: accorderie_install_template_accorderie_canada
+accorderie_install_template_accorderie_canada:
+	./script/db_restore.py --database template
+	./script/addons/install_addons_dev.sh template code_generator_template_accorderie_canada
+
+.PHONY: accorderie_install_template_accorderie_canada_ddb
+accorderie_install_template_accorderie_canada_ddb:
+	./script/db_restore.py --database template
+	./script/addons/install_addons_dev.sh template code_generator_template_accorderie_canada_ddb
+
+.PHONY: accorderie_install_template_accorderie_canada_old_view
+accorderie_install_template_accorderie_canada_old_view:
+	./script/db_restore.py --database template
+	./script/addons/install_addons_dev.sh template code_generator_template_accorderie_canada_old_view
+
+.PHONY: accorderie_install_code_generator_accorderie_canada
+accorderie_install_code_generator_accorderie_canada:
+	./script/db_restore.py --database code_generator
+	./script/addons/install_addons_dev.sh code_generator code_generator_accorderie_canada
+
+.PHONY: accorderie_install_code_generator_accorderie_canada_ddb
+accorderie_install_code_generator_accorderie_canada_ddb:
+	./script/db_restore.py --database code_generator
+	./script/addons/install_addons_dev.sh code_generator code_generator_accorderie_canada_ddb
+
+.PHONY: accorderie_install_code_generator_accorderie_canada_old_view
+accorderie_install_code_generator_accorderie_canada_old_view:
+	./script/db_restore.py --database code_generator
+	./script/addons/install_addons_dev.sh code_generator code_generator_accorderie_canada_old_view
+
+.PHONY: accorderie_setup_migrate_database
+accorderie_setup_migrate_database:
+	./script/db_restore.py --database code_generator_db_servers
+	./script/addons/install_addons_dev.sh code_generator_db_servers code_generator_db_servers
+
 #########################
 #  Addons installation  #
 #########################
@@ -339,7 +398,7 @@ open_terminal:
 #  format  #
 ############
 .PHONY: format
-format: format_code_generator format_code_generator_template format_script
+format: format_code_generator format_code_generator_template format_script format_accorderie
 
 .PHONY: format_code_generator
 format_code_generator:
@@ -350,6 +409,10 @@ format_code_generator:
 format_code_generator_template:
 	./script/maintenance/black.sh ./addons/TechnoLibre_odoo-code-generator-template/
 	#./script/maintenance/prettier_xml.sh ./addons/TechnoLibre_odoo-code-generator-template/
+
+.PHONY: format_accorderie
+format_accorderie:
+	./script/maintenance/black.sh ./addons/TechnoLibre_odoo_accorderie
 
 .PHONY: format_script
 format_script:
@@ -446,6 +509,11 @@ repo_configure_all:
 repo_configure_group_code_generator:
 	./script/update_manifest_local_dev_code_generator.sh
 
+# configure only group accorderie
+.PHONY: repo_configure_group_accorderie
+repo_configure_group_accorderie:
+	./script/update_manifest_local_dev_accorderie.sh
+
 # Show git status for all repo
 .PHONY: repo_show_status
 repo_show_status:
@@ -494,6 +562,12 @@ config_gen_all:
 .PHONY: config_gen_code_generator
 config_gen_code_generator:
 	./script/git_repo_update_group.py --group base,code_generator
+	./script/generate_config.sh
+
+# generate config repo accorderie
+.PHONY: config_gen_accorderie
+config_gen_accorderie:
+	./script/git_repo_update_group.py --group base,accorderie
 	./script/generate_config.sh
 
 # generate config repo image_db
