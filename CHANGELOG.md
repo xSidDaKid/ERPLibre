@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+
+- Downgrade Werkzeug==0.11.15, only this version is supported by Odoo 12.0. This fix some http request behind a proxy.
+
 ## [1.2.1] - 2021-09-28
 
 ### Added
