@@ -185,6 +185,10 @@ List your docker version
 You need to push your docker image and update your tag, like 1.0.1:
 > docker push technolibre/erplibre:VERSION
 
+## Do a release on github
+
+Visit `https://github.com/ERPLibre/ERPLibre/releases/new` and create a release named `v#.#.#` and copy information from CHANGELOG.md.
+
 # TIPS
 
 ## Compare repo differences with another ERPLibre project
