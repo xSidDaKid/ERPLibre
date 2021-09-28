@@ -2828,16 +2828,11 @@ pycrypto = ["pycryptodome"]
 
 [[package]]
 category = "main"
-description = "The comprehensive WSGI web application library."
+description = "The Swiss Army knife of Python web development"
 name = "werkzeug"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "0.15.3"
-
-[package.extras]
-dev = ["pytest", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinx-issues"]
-termcolor = ["termcolor"]
-watchdog = ["watchdog"]
+python-versions = "*"
+version = "0.11.15"
 
 [[package]]
 category = "main"
@@ -2991,7 +2986,7 @@ python-versions = "*"
 version = "4.4.28"
 
 [metadata]
-content-hash = "90dc43b28e07899fec98d3ec479284350b6ed838337d3bdc5d06893986ee3bda"
+content-hash = "93dfc6dfd4231f04b16ed8770d4f4dd3a2a3fd854a562b614009d186c08aa85e"
 lock-version = "1.0"
 python-versions = "^3.7.7"
 
@@ -4629,8 +4624,8 @@ wechatpy = [
     {file = "wechatpy-1.8.15.tar.gz", hash = "sha256:0724347ea9ede4f14b59acefd6e41c9baae25e822df204ece3eeba3d9e1dfd03"},
 ]
 werkzeug = [
-    {file = "Werkzeug-0.15.3-py2.py3-none-any.whl", hash = "sha256:97660b282aa7e29f94f3fe378e5c7162d7ab9d601a8dbb1cbb2ffc8f0e54607d"},
-    {file = "Werkzeug-0.15.3.tar.gz", hash = "sha256:cfd1281b1748288e59762c0e174d64d8bcb2b70e7c57bc4a1203c8825af24ac3"},
+    {file = "Werkzeug-0.11.15-py2.py3-none-any.whl", hash = "sha256:c6f6f89124df0514d886782c658c3e12f2caaa94da34cee3fd82eebf4ebf052b"},
+    {file = "Werkzeug-0.11.15.tar.gz", hash = "sha256:455d7798ac263266dbd38d4841f7534dd35ca9c3da4a8df303f8488f38f3bcc0"},
 ]
 wget = [
     {file = "wget-3.2.zip", hash = "sha256:35e630eca2aa50ce998b9b1a127bb26b30dfee573702782aa982f875e3f16061"},
