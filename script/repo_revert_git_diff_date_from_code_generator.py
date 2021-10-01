@@ -10,6 +10,7 @@ import re
 new_path = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(new_path)
 
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S')
 _logger = logging.getLogger(__name__)
 
 
@@ -62,6 +63,7 @@ def main():
                     with open(file_real_path, "r") as file:
                         lst_data = file.readlines()
                         for data in lst_data:
+                            # TODO this remove code begin with this string, why do we remove it?
                             if data.startswith("#: code:addons/addons/"):
                                 is_modified = True
                             else:

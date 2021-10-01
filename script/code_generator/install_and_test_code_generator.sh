@@ -9,6 +9,7 @@ if [[ $retVal -ne 0 ]]; then
     echo "Error ./script/addons/install_addons_dev.sh ${1} ${2}"
     exit 1
 fi
+# TODO check output when got warning
 ./script/repo_revert_git_diff_date_from_code_generator.py
 # Remove pot and po diff
 cd $3

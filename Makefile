@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+LOG_FILE := ./.venv/make_test.log
 #############
 #  General  #
 #############
@@ -250,13 +251,13 @@ addons_install_all_code_generator_demo: db_restore_erplibre_base_db_code_generat
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_website_snippet
 
 .PHONY: addons_install_all_code_generator_template
-addons_install_all_code_generator_template:
+addons_install_all_code_generator_template: db_restore_erplibre_base_db_template
 	./script/addons/install_addons_dev.sh template demo_portal,auto_backup
 	./script/addons/install_addons_dev.sh template code_generator_template_demo_portal code_generator_template_demo_sysadmin_cron
 
 .PHONY: addons_install_all_generated_demo
-addons_install_all_generated_demo:
-	./script/addons/install_addons_dev.sh template demo_export_helpdesk,demo_internal,demo_portal,demo_website_leaflet,demo_website_snippet
+addons_install_all_generated_demo: db_restore_erplibre_base_db_template
+	./script/addons/install_addons_dev.sh template demo_helpdesk_data,demo_internal,demo_portal,demo_website_leaflet,demo_website_snippet,auto_backup
 	# TODO support installation theme with cli
 	#./script/addons/install_addons_dev.sh template theme_website_demo_code_generator
 
@@ -268,7 +269,15 @@ addons_install_all_code_generator:
 #  test  #
 ##########
 .PHONY: test
-test: test_format test_code_generator_generation test_code_generator_generation_extra test_code_generator_code_i18n test_code_generator_code_i18n_extra
+test:
+	-rm $(LOG_FILE)
+	./script/make.sh test_base |& tee -a $(LOG_FILE)
+	echo "== RESULT =="
+	grep -i warning $(LOG_FILE)|grep -v "have the same label:"|wc -l
+	grep -i error $(LOG_FILE)|grep -v fetchmail_notify_error_to_sender|wc -l
+
+.PHONY: test_base
+test_base: test_format test_code_generator_generation test_code_generator_generation_extra test_code_generator_code_i18n test_code_generator_code_i18n_extra
 
 .PHONY: test_format
 test_format:
@@ -299,6 +308,7 @@ test_code_generator_code_i18n:
 	./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
 	./script/db_restore.py --database template
 	./script/addons/install_addons_dev.sh template demo_portal
+	#./script/addons/install_addons_dev.sh template code_generator_template_demo_portal
 	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_portal ./addons/TechnoLibre_odoo-code-generator-template
 
 .PHONY: test_code_generator_code_i18n_extra
@@ -306,6 +316,7 @@ test_code_generator_code_i18n_extra:
 	./script/code_generator/check_git_change_code_generator.sh ./addons/OCA_server-tools/auto_backup
 	./script/db_restore.py --database template
 	./script/addons/install_addons_dev.sh template auto_backup
+	#./script/addons/install_addons_dev.sh template code_generator_template_demo_sysadmin_cron
 	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_sysadmin_cron ./addons/TechnoLibre_odoo-code-generator-template
 	# To support i18n in auto_backup
 	./script/code_generator/check_git_change_code_generator.sh ./addons/OCA_server-tools/auto_backup
