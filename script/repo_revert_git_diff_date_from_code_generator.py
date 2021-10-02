@@ -10,7 +10,10 @@ import re
 new_path = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(new_path)
 
-logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S')
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s: %(message)s",
+    datefmt="%Y-%m-%d %I:%M:%S",
+)
 _logger = logging.getLogger(__name__)
 
 
