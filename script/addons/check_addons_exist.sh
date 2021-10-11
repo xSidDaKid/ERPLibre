@@ -6,13 +6,13 @@ FILE_NAME=$1
 IFS=',' read -ra FILE_NAME_ARR <<< "$FILE_NAME"
 
 for i in "${FILE_NAME_ARR[@]}"; do
-  COUNT=$(find ./addons ./odoo -name "${i}"|wc -l)
+  COUNT=$(find ./addons ./odoo -name "${i}"|grep -v "/setup/" -c)
   if [[ $COUNT -eq 0 ]]; then
-    echo "ERROR cannot find module name '${i}'."
+    echo "./script/addons/check_addons_exist.sh ERROR cannot find module name '${i}'."
     exit 1
   elif [[ $COUNT -ne 1 ]]; then
-    echo "ERROR contains ${COUNT} module name '${i}', will create error at installation."
-    find . -name "${i}"
+    echo "./script/addons/check_addons_exist.sh ERROR contains ${COUNT} module name '${i}', will create error at installation."
+    find . -name "${i}"|grep -v "/setup/"
     exit 2
   fi
 done
