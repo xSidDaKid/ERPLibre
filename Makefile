@@ -260,7 +260,14 @@ accorderie_install_code_generator_accorderie_canada:
 .PHONY: accorderie_install_code_generator_accorderie_canada_ddb
 accorderie_install_code_generator_accorderie_canada_ddb:
 	./script/db_restore.py --database code_generator
+	./script/addons/install_addons_dev.sh code_generator code_generator_portal
 	./script/addons/install_addons_dev.sh code_generator code_generator_accorderie_canada_ddb
+
+.PHONY: accorderie_install_code_generator_migrator_accorderie_canada_ddb
+accorderie_install_code_generator_migrator_accorderie_canada_ddb:
+	./script/db_restore.py --database code_generator
+	./script/addons/install_addons_dev.sh code_generator code_generator_portal
+	./script/addons/install_addons_dev.sh code_generator code_generator_migrator_accorderie_canada_ddb
 
 .PHONY: accorderie_install_code_generator_accorderie_canada_old_view
 accorderie_install_code_generator_accorderie_canada_old_view:
