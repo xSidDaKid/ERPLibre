@@ -331,6 +331,20 @@ addons_install_all_generated_demo: db_restore_erplibre_base_db_template
 addons_install_all_code_generator:
 	./script/addons/install_addons_dev.sh code_generator code_generator_auto_backup
 
+##################
+# Code generator #
+##################
+.PHONY: addons_install_code_generator_template_code_generator
+addons_install_code_generator_template_code_generator:
+	./script/db_restore.py --database template
+	./script/addons/install_addons_dev.sh template code_generator
+	./script/addons/install_addons_dev.sh template code_generator_template_code_generator
+
+.PHONY: addons_install_code_generator_code_generator
+addons_install_code_generator_code_generator:
+	./script/db_restore.py --database code_generator
+	./script/addons/install_addons_dev.sh code_generator code_generator_code_generator
+
 ##########
 #  test  #
 ##########
