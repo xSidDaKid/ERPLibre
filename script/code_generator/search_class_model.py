@@ -107,11 +107,25 @@ def main():
             f_lines = source.read()
             # Throw exception if not found
             t_index = f_lines.index("template_model_name")
-            t_index_first_quote = f_lines.index('"', t_index + 1)
-            t_index_second_quote = f_lines.index('"', t_index_first_quote + 1)
-            t_index_third_quote = f_lines.index('"', t_index_second_quote + 1)
+            t_index_equation = f_lines.index("=", t_index + 1)
+            # find next character
+            i = 1
+            while f_lines[t_index_equation + i] in (" ", "\n"):
+                i += 1
+            first_char = f_lines[t_index_equation + i]
+            if first_char == "(":
+                second_char = ")"
+            else:
+                second_char = first_char
+            # t_index_first_quote = f_lines.index(first_char, t_index + 1)
+            t_index_second_quote = f_lines.index(
+                first_char, t_index_equation + i
+            )
+            t_index_third_quote = f_lines.index(
+                second_char, t_index_second_quote + 1
+            )
             new_file_content = (
-                f"{f_lines[:t_index_second_quote + 1]}{models_name}{f_lines[t_index_third_quote:]}"
+                f'{f_lines[:t_index_second_quote]}"{models_name}"{f_lines[t_index_third_quote + 1:]}'
             )
         with open(hooks_file_path, "w") as source:
             source.write(new_file_content)
