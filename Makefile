@@ -337,6 +337,7 @@ addons_install_all_code_generator:
 .PHONY: addons_install_code_generator_template_code_generator
 addons_install_code_generator_template_code_generator:
 	./script/db_restore.py --database template
+	./script/code_generator/search_class_model.py -d addons/TechnoLibre_odoo-code-generator/code_generator -t addons/TechnoLibre_odoo-code-generator-template/code_generator_template_code_generator
 	./script/addons/install_addons_dev.sh template code_generator
 	./script/addons/install_addons_dev.sh template code_generator_template_code_generator
 
