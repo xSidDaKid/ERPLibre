@@ -42,6 +42,12 @@ def get_config():
             " template source directory, will update file hooks.py"
         ),
     )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="Don't show output of found model.",
+    )
     args = parser.parse_args()
     return args
 
@@ -86,7 +92,7 @@ def main():
     models_name = "; ".join(lst_model_name)
     if not models_name:
         _logger.warning(f"Missing models class in {config.directory}")
-    else:
+    elif not config.quiet:
         # _logger.info(models_name)
         print(models_name)
 
