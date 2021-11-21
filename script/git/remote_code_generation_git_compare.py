@@ -48,8 +48,11 @@ def get_config():
         help="Don't show output of difference.",
     )
     parser.add_argument("--git_gui", action="store_true", help="Open git gui.")
-    parser.add_argument('--clear', action="store_true",
-                        help="Delete temporary directory at the end of execution.")
+    parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Delete temporary directory at the end of execution.",
+    )
     args = parser.parse_args()
     return args
 
