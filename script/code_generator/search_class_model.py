@@ -79,7 +79,8 @@ def main():
                             type(node) is ast.Assign
                             and node.targets
                             and type(node.targets[0]) is ast.Name
-                            and node.targets[0].id == "_name"
+                            and node.targets[0].id in ("_name", "_inherit")
+                            # and node.targets[0].id in ("_name",)
                             and type(node.value) is ast.Str
                         ):
                             if node.value.s in lst_model_name:
@@ -89,7 +90,8 @@ def main():
                                 )
                             else:
                                 lst_model_name.append(node.value.s)
-    models_name = "; ".join(lst_model_name)
+    lst_model_name.sort()
+    models_name = ";\n ".join(lst_model_name)
     if not models_name:
         _logger.warning(f"Missing models class in {config.directory}")
     elif not config.quiet:
@@ -121,6 +123,12 @@ def main():
             first_char = f_lines[t_index_equation + i]
             if first_char == "(":
                 second_char = ")"
+            elif (
+                f_lines[t_index_equation + i : t_index_equation + i + 3]
+                == '"""'
+            ):
+                first_char = '"""'
+                second_char = '"""'
             else:
                 second_char = first_char
             # t_index_first_quote = f_lines.index(first_char, t_index + 1)
@@ -131,7 +139,7 @@ def main():
                 second_char, t_index_second_quote + 1
             )
             new_file_content = (
-                f'{f_lines[:t_index_second_quote]}"{models_name}"{f_lines[t_index_third_quote + 1:]}'
+                f'{f_lines[:t_index_second_quote]}"""{models_name}"""{f_lines[t_index_third_quote + len(second_char):]}'
             )
         with open(hooks_file_path, "w") as source:
             source.write(new_file_content)
