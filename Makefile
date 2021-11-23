@@ -307,10 +307,11 @@ addons_reinstall_code_generator_demo: addons_uninstall_code_generator_demo addon
 
 .PHONY: addons_install_all_code_generator_demo
 addons_install_all_code_generator_demo: db_restore_erplibre_base_db_code_generator
-	./script/addons/install_addons_dev.sh code_generator code_generator_demo,code_generator_demo_export_helpdesk,code_generator_demo_internal,code_generator_demo_portal,code_generator_demo_theme_website,code_generator_demo_website_leaflet,code_generator_demo_website_snippet
+	./script/addons/install_addons_dev.sh code_generator code_generator_demo,code_generator_demo_export_helpdesk,code_generator_demo_internal,code_generator_demo_internal_inherit,code_generator_demo_portal,code_generator_demo_theme_website,code_generator_demo_website_leaflet,code_generator_demo_website_snippet
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_export_helpdesk
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_internal
+#	./script/addons/install_addons_dev.sh code_generator code_generator_demo_internal_inherit
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_portal
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_theme_website
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_website_leaflet
@@ -318,12 +319,12 @@ addons_install_all_code_generator_demo: db_restore_erplibre_base_db_code_generat
 
 .PHONY: addons_install_all_code_generator_template
 addons_install_all_code_generator_template: db_restore_erplibre_base_db_template
-	./script/addons/install_addons_dev.sh template demo_portal,auto_backup
-	./script/addons/install_addons_dev.sh template code_generator_template_demo_portal,code_generator_template_demo_sysadmin_cron
+	./script/addons/install_addons_dev.sh template demo_portal,auto_backup,demo_internal_inherit
+	./script/addons/install_addons_dev.sh template code_generator_template_demo_portal,code_generator_template_demo_sysadmin_cron,code_generator_template_demo_internal_inherit
 
 .PHONY: addons_install_all_generated_demo
 addons_install_all_generated_demo: db_restore_erplibre_base_db_template
-	./script/addons/install_addons_dev.sh template demo_helpdesk_data,demo_internal,demo_portal,demo_website_leaflet,demo_website_snippet,auto_backup
+	./script/addons/install_addons_dev.sh template demo_helpdesk_data,demo_internal,demo_internal_inherit,demo_portal,demo_website_leaflet,demo_website_snippet,auto_backup
 	# TODO support installation theme with cli
 	#./script/addons/install_addons_dev.sh template theme_website_demo_code_generator
 
@@ -372,10 +373,11 @@ test_format:
 test_code_generator_generation:
 	./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
 	./script/db_restore.py --database code_generator
-	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo,code_generator_demo_export_helpdesk,code_generator_demo_internal,code_generator_demo_portal,code_generator_demo_theme_website,code_generator_demo_website_leaflet,code_generator_demo_website_snippet ./addons/TechnoLibre_odoo-code-generator-template
+	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo,code_generator_demo_export_helpdesk,code_generator_demo_internal,code_generator_demo_internal_inherit,code_generator_demo_portal,code_generator_demo_theme_website,code_generator_demo_website_leaflet,code_generator_demo_website_snippet ./addons/TechnoLibre_odoo-code-generator-template
 #	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo ./addons/TechnoLibre_odoo-code-generator-template
 #	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_export_helpdesk ./addons/TechnoLibre_odoo-code-generator-template
 #	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_internal ./addons/TechnoLibre_odoo-code-generator-template
+#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_internal_inherit ./addons/TechnoLibre_odoo-code-generator-template
 #	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_portal ./addons/TechnoLibre_odoo-code-generator-template
 #	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_theme_website ./addons/TechnoLibre_odoo-code-generator-template
 #	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_website_leaflet ./addons/TechnoLibre_odoo-code-generator-template
