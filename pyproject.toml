@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "ERPLibre"
-version = "1.1.0"
+version = "1.2.1"
 description = "Easy way to configure Odoo community"
 license = "AGPL-3.0-or-later"
 authors = [ "Mathieu Benoit <mathben@technolibre.ca>",]

@@ -73,6 +73,8 @@ grep --color=always --exclude-dir={.repo,.venv,.git} --exclude="*.svg" -nri v1.2
 
 Replace if need it to new version.
 
+Update file `./pyproject.toml` in [tool.poetry], line `version =`.
+
 ### Test production Ubuntu environment
 
 Follow instructions in [PRODUCTION.md](./PRODUCTION.md).
