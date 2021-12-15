@@ -612,6 +612,14 @@ config_gen_image_db:
 i18n_generate_demo_portal:
 	./.venv/bin/python3 ./odoo/odoo-bin i18n --database code_generator --module demo_portal --addons_path addons/TechnoLibre_odoo-code-generator
 
+###########
+#  Clean  #
+###########
+
+.PHONY: clean
+clean:
+	find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
+
 ###################
 #  Documentation  #
 ###################
