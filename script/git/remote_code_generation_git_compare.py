@@ -87,7 +87,9 @@ def main():
         elif config.meld:
             try:
                 subprocess.call(f"make clean", shell=True)
-                subprocess.call(f"meld {config.directory1} {config.directory2}", shell=True)
+                subprocess.call(
+                    f"meld {config.directory1} {config.directory2}", shell=True
+                )
             except:
                 pass
     elif not os.path.exists(config.directory1):
