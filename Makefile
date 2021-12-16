@@ -343,12 +343,14 @@ addons_install_code_generator_template_code_generator:
 	./script/addons/install_addons_dev.sh template code_generator
 	./script/addons/install_addons_dev.sh template code_generator_template_code_generator
 	./script/git/remote_code_generation_git_compare.py --quiet --git_gui --clear --replace_directory --directory1 ./addons/TechnoLibre_odoo-code-generator-template/code_generator_code_generator --directory2 ./addons/TechnoLibre_odoo-code-generator/code_generator_code_generator
+	#meld ./addons/TechnoLibre_odoo-code-generator/code_generator_code_generator ./addons/TechnoLibre_odoo-code-generator-template/code_generator_code_generator
 
 .PHONY: addons_install_code_generator_code_generator
 addons_install_code_generator_code_generator:
 	./script/db_restore.py --database code_generator
 	./script/addons/install_addons_dev.sh code_generator code_generator_code_generator
 	./script/git/remote_code_generation_git_compare.py --quiet --git_gui  --clear --replace_directory --directory1 ./addons/TechnoLibre_odoo-code-generator/code_generator --directory2 ./addons/TechnoLibre_odoo-code-generator-template/code_generator
+	#meld ./addons/TechnoLibre_odoo-code-generator-template/code_generator ./addons/TechnoLibre_odoo-code-generator/code_generator
 
 ##########
 #  test  #
