@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
-echo "==$&%== Begin ${@}"
+echo "
+===> ${@}
+"
 time make $@
-echo "==$&%== End ${@}"
+echo "
+<=== ${@}
+"
