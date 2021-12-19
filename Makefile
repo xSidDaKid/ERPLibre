@@ -406,6 +406,7 @@ test_full:
 .PHONY: test_base
 test_base:
 	./script/make.sh test_format
+	./script/make.sh test_installation_demo
 	./script/make.sh test_code_generator_generation
 	./script/make.sh test_code_generator_generation_extra
 	./script/make.sh test_code_generator_code_template_demo_portal
@@ -422,6 +423,13 @@ test_extra:
 test_format:
 	./script/maintenance/black.sh --check ./addons/TechnoLibre_odoo-code-generator/
 	./script/maintenance/black.sh --check ./addons/TechnoLibre_odoo-code-generator-template/
+
+.PHONY: test_installation_demo
+test_installation_demo:
+	./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
+	./script/db_restore.py --database code_generator
+	./script/code_generator/install_and_test_code_generator.sh template demo_helpdesk_data,demo_internal,demo_internal_inherit,demo_mariadb_sql_example_1,demo_portal,demo_website_data,demo_website_leaflet,demo_website_snippet ./addons/TechnoLibre_odoo-code-generator-template
+	#./script/code_generator/install_and_test_code_generator.sh template theme_website_demo_code_generator ./addons/TechnoLibre_odoo-code-generator-template
 
 .PHONY: test_code_generator_generation
 test_code_generator_generation:
