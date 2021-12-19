@@ -43,6 +43,11 @@ def get_config():
         ),
     )
     parser.add_argument(
+        "--with_inherit",
+        dest="with_inherit",
+        help="Will search inherit model",
+    )
+    parser.add_argument(
         "-q",
         "--quiet",
         action="store_true",
@@ -58,6 +63,9 @@ def main():
         _logger.error(f"Path directory {config.directory} not exist.")
         return -1
     lst_model_name = []
+    lst_search_target = (
+        ("_name", "_inherit") if config.with_inherit else ("_name",)
+    )
 
     # lst_py_file = glob.glob(os.path.join(config.directory, "***", "*.py"))
     lst_py_file = Path(config.directory).rglob("*.py")
@@ -79,7 +87,7 @@ def main():
                             type(node) is ast.Assign
                             and node.targets
                             and type(node.targets[0]) is ast.Name
-                            and node.targets[0].id in ("_name", "_inherit")
+                            and node.targets[0].id in lst_search_target
                             # and node.targets[0].id in ("_name",)
                             and type(node.value) is ast.Str
                         ):
