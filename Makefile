@@ -371,6 +371,16 @@ meld_code_generator_code_generator:
 	./script/make.sh clean
 	meld ./addons/TechnoLibre_odoo-code-generator-template/code_generator ./addons/TechnoLibre_odoo-code-generator/code_generator
 
+
+########################
+#  Extra migrator sql  #
+########################
+.PHONY: addons_install_code_generator_migrator_demo_mariadb_sql_example_1
+addons_install_code_generator_migrator_demo_mariadb_sql_example_1:
+	./script/db_restore.py --database code_generator
+	./script/addons/install_addons_dev.sh code_generator code_generator_portal
+	./script/addons/install_addons_dev.sh code_generator code_generator_migrator_demo_mariadb_sql_example_1
+
 ##########
 #  test  #
 ##########
