@@ -536,13 +536,13 @@ format:
 
 .PHONY: format_code_generator
 format_code_generator:
-	.venv/bin/isort ./addons/TechnoLibre_odoo-code-generator/
+	.venv/bin/isort --profile black -l 79 ./addons/TechnoLibre_odoo-code-generator/
 	./script/maintenance/black.sh ./addons/TechnoLibre_odoo-code-generator/
 	#./script/maintenance/prettier_xml.sh ./addons/TechnoLibre_odoo-code-generator/
 
 .PHONY: format_code_generator_template
 format_code_generator_template:
-	.venv/bin/isort ./addons/TechnoLibre_odoo-code-generator-template/
+	.venv/bin/isort --profile black -l 79 ./addons/TechnoLibre_odoo-code-generator-template/
 	./script/maintenance/black.sh ./addons/TechnoLibre_odoo-code-generator-template/
 	#./script/maintenance/prettier_xml.sh ./addons/TechnoLibre_odoo-code-generator-template/
 

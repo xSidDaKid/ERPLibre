@@ -2,6 +2,14 @@
 requires = [ "poetry>=1.0.0",]
 build-backend = "poetry.masonry.api"
 
+[tool.isort]
+profile = "black"
+py_version=37
+
+[tool.black]
+line-length = 79
+target-version = ['py37']
+
 [tool.poetry]
 name = "ERPLibre"
 version = "1.2.1"
