@@ -315,12 +315,13 @@ addons_reinstall_code_generator_demo:
 .PHONY: addons_install_all_code_generator_demo
 addons_install_all_code_generator_demo:
 	./script/make.sh db_restore_erplibre_base_db_code_generator
-	./script/addons/install_addons_dev.sh code_generator code_generator_demo,code_generator_demo_export_helpdesk,code_generator_demo_internal,code_generator_demo_internal_inherit,code_generator_demo_portal,code_generator_demo_theme_website,code_generator_demo_website_leaflet,code_generator_demo_website_snippet
+	./script/addons/install_addons_dev.sh code_generator code_generator_demo,code_generator_demo_export_helpdesk,code_generator_demo_internal,code_generator_demo_internal_inherit,code_generator_demo_portal,code_generator_demo_theme_website,code_generator_demo_website_leaflet,code_generator_demo_website_snippet,code_generator_auto_backup
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_export_helpdesk
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_internal
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_internal_inherit
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_portal
+#	./script/addons/install_addons_dev.sh code_generator code_generator_auto_backup
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_theme_website
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_website_leaflet
 #	./script/addons/install_addons_dev.sh code_generator code_generator_demo_website_snippet
@@ -330,6 +331,12 @@ addons_install_all_code_generator_template:
 	./script/make.sh db_restore_erplibre_base_db_template
 	./script/addons/install_addons_dev.sh template demo_portal,auto_backup,demo_internal_inherit
 	./script/addons/install_addons_dev.sh template code_generator_template_demo_portal,code_generator_template_demo_sysadmin_cron,code_generator_template_demo_internal_inherit
+	#./script/addons/install_addons_dev.sh template demo_portal
+	#./script/addons/install_addons_dev.sh template code_generator_template_demo_portal
+	#./script/addons/install_addons_dev.sh template auto_backup
+	#./script/addons/install_addons_dev.sh template code_generator_template_demo_sysadmin_cron
+	#./script/addons/install_addons_dev.sh template demo_internal_inherit
+	#./script/addons/install_addons_dev.sh template code_generator_template_demo_internal_inherit
 
 .PHONY: addons_install_all_generated_demo
 addons_install_all_generated_demo:
