@@ -5,7 +5,7 @@
 # $4 is generated module name separate by ,
 
 if (($# < 4)); then
-  echo "Need 4 arguments: 1-database name, 2-list of module to install, 3-directory to check difference, 4-list of generated module"
+  echo "ERROR, need 4 arguments: 1-database name, 2-list of module to install, 3-directory to check difference, 4-list of generated module"
   exit 1
 fi
 

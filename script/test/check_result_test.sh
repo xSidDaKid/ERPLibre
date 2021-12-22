@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if (($# < 1)); then
-  echo "Need 1 arguments: log file path"
+  echo "ERROR, need 1 arguments: log file path"
   exit 1
 fi
 
@@ -35,21 +35,42 @@ else
   COUNT_ERROR=$(echo "${ERROR_MESSAGE}"|wc -l)
 fi
 
+echo -e "${Blue}Summary of check result${Color_Off}"
 if (("${COUNT_WARNING}" > 0)); then
-  echo -e "${Yellow}${COUNT_WARNING} WARNING${Color_Off}"
+  if (("${COUNT_WARNING}" > 1)); then
+    echo -e "${Yellow}${COUNT_WARNING} WARNINGS${Color_Off}"
+  else
+    echo -e "${Yellow}${COUNT_WARNING} WARNING${Color_Off}"
+  fi
 fi
 
 if (("${COUNT_ERROR}" > 0)); then
-  echo -e "${Red}${COUNT_ERROR} ERROR${Color_Off}"
+  if (("${COUNT_ERROR}" > 1)); then
+    echo -e "${Red}${COUNT_ERROR} ERRORS${Color_Off}"
+  else
+    echo -e "${Red}${COUNT_ERROR} ERROR${Color_Off}"
+  fi
 fi
 
 if (("${COUNT_WARNING}" > 0)); then
-  echo -e "${Yellow}WARNING${Color_Off}"
+  if (("${COUNT_ERROR}" > 0)); then
+    if (("${COUNT_WARNING}" > 1)); then
+      echo -e "${Yellow}${COUNT_WARNING} WARNINGS${Color_Off}"
+    else
+      echo -e "${Yellow}${COUNT_WARNING} WARNING${Color_Off}"
+    fi
+  fi
   echo -e "${WARNING_MESSAGE}"
 fi
 
 if (("${COUNT_ERROR}" > 0)); then
-  echo -e "${Red}ERROR${Color_Off}"
+  if (("${COUNT_WARNING}" > 0)); then
+    if (("${COUNT_ERROR}" > 1)); then
+      echo -e "${Red}${COUNT_ERROR} ERRORS${Color_Off}"
+    else
+      echo -e "${Red}${COUNT_ERROR} ERROR${Color_Off}"
+    fi
+  fi
   echo -e "${ERROR_MESSAGE}"
 fi
 
