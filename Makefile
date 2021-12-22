@@ -393,31 +393,24 @@ addons_install_code_generator_migrator_demo_mariadb_sql_example_1:
 .PHONY: test
 test:
 	./script/make.sh clean
-	-rm $(LOG_FILE)
-	./script/make.sh test_base |& tee -a $(LOG_FILE)
-	echo "== RESULT from ${LOG_FILE} =="
-	grep -i warning $(LOG_FILE)|grep -v "have the same label:"|wc -l
-	grep -i error $(LOG_FILE)|grep -v fetchmail_notify_error_to_sender|wc -l
+	-rm ${LOG_FILE}
+	./script/make.sh test_base |& tee -a ${LOG_FILE}
+	./script/test/check_result_test.sh ${LOG_FILE}
 
 .PHONY: test_full
 test_full:
 	./script/make.sh clean
-	-rm $(LOG_FILE)
-	./script/make.sh test_base |& tee -a $(LOG_FILE)
-	./script/make.sh test_extra |& tee -a $(LOG_FILE)
-	echo "== RESULT from ${LOG_FILE} =="
-	grep -i warning $(LOG_FILE)|grep -v "have the same label:"|wc -l
-	grep -i error $(LOG_FILE)|grep -v fetchmail_notify_error_to_sender|wc -l
+	-rm ${LOG_FILE}
+	./script/make.sh test_base |& tee -a ${LOG_FILE}
+	./script/make.sh test_extra |& tee -a ${LOG_FILE}
+	./script/test/check_result_test.sh ${LOG_FILE}
 
 .PHONY: test_base
 test_base:
 	./script/make.sh test_format
 	./script/make.sh test_installation_demo
 	./script/make.sh test_code_generator_generation
-	./script/make.sh test_code_generator_generation_extra
-	./script/make.sh test_code_generator_code_template_demo_portal
-	./script/make.sh test_code_generator_code_template_demo_internal_inherit
-	./script/make.sh test_code_generator_code_template_demo_sysadmin_cron
+	./script/make.sh test_code_generator_generation_template
 
 .PHONY: test_extra
 test_extra:
@@ -434,30 +427,44 @@ test_format:
 test_installation_demo:
 	./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
 	./script/db_restore.py --database code_generator
-	./script/code_generator/install_and_test_code_generator.sh template demo_helpdesk_data,demo_internal,demo_internal_inherit,demo_mariadb_sql_example_1,demo_portal,demo_website_data,demo_website_leaflet,demo_website_snippet ./addons/TechnoLibre_odoo-code-generator-template
-	#./script/code_generator/install_and_test_code_generator.sh template theme_website_demo_code_generator ./addons/TechnoLibre_odoo-code-generator-template
+	./script/addons/install_addons.sh template demo_helpdesk_data,demo_internal,demo_internal_inherit,demo_mariadb_sql_example_1,demo_portal,demo_website_data,demo_website_leaflet,demo_website_snippet
+	#./script/addons/install_addons.sh template theme_website_demo_code_generator ./addons/TechnoLibre_odoo-code-generator-template
 
 .PHONY: test_code_generator_generation
 test_code_generator_generation:
 	./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
-	./script/db_restore.py --database code_generator
-	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo,code_generator_demo_export_helpdesk,code_generator_demo_internal,code_generator_demo_portal,code_generator_demo_theme_website,code_generator_demo_website_leaflet,code_generator_demo_website_snippet ./addons/TechnoLibre_odoo-code-generator-template
-	./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
-	./script/db_restore.py --database code_generator
-	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_internal_inherit ./addons/TechnoLibre_odoo-code-generator-template
-#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo ./addons/TechnoLibre_odoo-code-generator-template
-#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_export_helpdesk ./addons/TechnoLibre_odoo-code-generator-template
-#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_internal ./addons/TechnoLibre_odoo-code-generator-template
-#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_portal ./addons/TechnoLibre_odoo-code-generator-template
-#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_theme_website ./addons/TechnoLibre_odoo-code-generator-template
-#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_website_leaflet ./addons/TechnoLibre_odoo-code-generator-template
-#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_website_snippet ./addons/TechnoLibre_odoo-code-generator-template
-
-.PHONY: test_code_generator_generation_extra
-test_code_generator_generation_extra:
 	./script/code_generator/check_git_change_code_generator.sh ./addons/OCA_server-tools/auto_backup
+	# Multiple
 	./script/db_restore.py --database code_generator
-	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_auto_backup ./addons/OCA_server-tools/auto_backup
+	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo,code_generator_demo_export_helpdesk,code_generator_demo_export_website,code_generator_demo_internal,code_generator_demo_portal,code_generator_demo_theme_website,code_generator_demo_website_leaflet,code_generator_demo_website_snippet ./addons/TechnoLibre_odoo-code-generator-template code_generator_demo,demo_helpdesk_data,demo_website_data,demo_internal,demo_portal,theme_website_demo_code_generator,demo_website_leaflet,demo_website_snippet
+	# inherit
+	# TODO should be in multiple list, need to support it
+	./script/db_restore.py --database code_generator
+	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_internal_inherit ./addons/TechnoLibre_odoo-code-generator-template demo_internal_inherit
+	# auto_backup
+	./script/db_restore.py --database code_generator
+#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_auto_backup ./addons/OCA_server-tools/auto_backup auto_backup
+
+	# Single
+	#./script/db_restore.py --database code_generator
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo ./addons/TechnoLibre_odoo-code-generator-template code_generator_demo
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_export_helpdesk ./addons/TechnoLibre_odoo-code-generator-template demo_helpdesk_data
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_export_website ./addons/TechnoLibre_odoo-code-generator-template demo_website_data
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_internal ./addons/TechnoLibre_odoo-code-generator-template demo_internal
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_portal ./addons/TechnoLibre_odoo-code-generator-template demo_portal
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_theme_website ./addons/TechnoLibre_odoo-code-generator-template theme_website_demo_code_generator
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_website_leaflet ./addons/TechnoLibre_odoo-code-generator-template demo_website_leaflet
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_website_snippet ./addons/TechnoLibre_odoo-code-generator-template demo_website_snippet
+	#./script/db_restore.py --database code_generator
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_internal_inherit ./addons/TechnoLibre_odoo-code-generator-template demo_internal_inherit
+	#./script/db_restore.py --database code_generator
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_auto_backup ./addons/OCA_server-tools/auto_backup auto_backup
+
+.PHONY: test_code_generator_generation_template
+test_code_generator_generation_template:
+	./script/make.sh test_code_generator_code_template_demo_portal
+	./script/make.sh test_code_generator_code_template_demo_internal_inherit
+	./script/make.sh test_code_generator_code_template_demo_sysadmin_cron
 
 .PHONY: test_code_generator_code_template_demo_portal
 test_code_generator_code_template_demo_portal:
@@ -465,9 +472,7 @@ test_code_generator_code_template_demo_portal:
 	./script/db_restore.py --database template
 	./script/addons/install_addons_dev.sh template demo_portal
 	#./script/addons/install_addons_dev.sh template code_generator_template_demo_portal
-	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_portal ./addons/TechnoLibre_odoo-code-generator-template
-	# To support i18n in auto_backup
-	#./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
+	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_portal ./addons/TechnoLibre_odoo-code-generator-template code_generator_demo_portal
 
 .PHONY: test_code_generator_code_template_demo_internal_inherit
 test_code_generator_code_template_demo_internal_inherit:
@@ -475,9 +480,7 @@ test_code_generator_code_template_demo_internal_inherit:
 	./script/db_restore.py --database template
 	./script/addons/install_addons_dev.sh template demo_internal_inherit
 	#./script/addons/install_addons_dev.sh template code_generator_template_demo_internal_inherit
-	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_internal_inherit ./addons/TechnoLibre_odoo-code-generator-template
-	# To support i18n in auto_backup
-	#./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
+	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_internal_inherit ./addons/TechnoLibre_odoo-code-generator-template code_generator_demo_internal_inherit
 
 .PHONY: test_code_generator_code_template_demo_sysadmin_cron
 test_code_generator_code_template_demo_sysadmin_cron:
@@ -485,9 +488,7 @@ test_code_generator_code_template_demo_sysadmin_cron:
 	./script/db_restore.py --database template
 	./script/addons/install_addons_dev.sh template auto_backup
 	#./script/addons/install_addons_dev.sh template code_generator_template_demo_sysadmin_cron
-	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_sysadmin_cron ./addons/TechnoLibre_odoo-code-generator-template
-	# To support i18n in auto_backup
-	./script/code_generator/check_git_change_code_generator.sh ./addons/OCA_server-tools/auto_backup
+	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_sysadmin_cron ./addons/TechnoLibre_odoo-code-generator-template code_generator_auto_backup
 
 .PHONY: test_code_generator_migrator_demo_mariadb_sql_example_1
 test_code_generator_migrator_demo_mariadb_sql_example_1:
@@ -497,8 +498,6 @@ test_code_generator_migrator_demo_mariadb_sql_example_1:
 	./script/addons/install_addons_dev.sh code_generator code_generator_portal
 	#./script/addons/install_addons_dev.sh code_generator code_generator_migrator_demo_mariadb_sql_example_1
 	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_migrator_demo_mariadb_sql_example_1 ./addons/TechnoLibre_odoo-code-generator-template
-	# To support i18n
-	#./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
 
 .PHONY: test_code_generator_template_demo_mariadb_sql_example_1
 test_code_generator_template_demo_mariadb_sql_example_1:
@@ -508,14 +507,13 @@ test_code_generator_template_demo_mariadb_sql_example_1:
 	./script/code_generator/search_class_model.py --quiet -d addons/TechnoLibre_odoo-code-generator-template/demo_mariadb_sql_example_1 -t addons/TechnoLibre_odoo-code-generator-template/code_generator_template_demo_mariadb_sql_example_1
 	#./script/addons/install_addons_dev.sh code_generator code_generator_template_demo_mariadb_sql_example_1
 	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_mariadb_sql_example_1 ./addons/TechnoLibre_odoo-code-generator-template
-	# To support i18n
-	#./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
 
 .PHONY: test_code_generator_demo_mariadb_sql_example_1
 test_code_generator_demo_mariadb_sql_example_1:
 	./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
 	./script/db_restore.py --database code_generator
-	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_mariadb_sql_example_1 ./addons/TechnoLibre_odoo-code-generator-template
+	# TODO broken
+	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_mariadb_sql_example_1 ./addons/TechnoLibre_odoo-code-generator-template demo_mariadb_sql_example_1
 
 ##############
 #  tag  #
@@ -559,6 +557,7 @@ format_accorderie:
 
 .PHONY: format_script
 format_script:
+	#.venv/bin/isort --profile black -l 79 ./script/
 	./script/maintenance/black.sh ./script/
 
 ###########
