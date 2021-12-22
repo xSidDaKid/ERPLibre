@@ -1,11 +1,12 @@
 #!./.venv/bin/python
-import os
-import sys
 import argparse
 import logging
+import os
+import re
+import sys
+
 import git
 from unidiff import PatchSet
-import re
 
 new_path = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(new_path)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import pymysql
 from collections import defaultdict
 
+import pymysql
 
 # Fix date with string "0000-00-00"
 

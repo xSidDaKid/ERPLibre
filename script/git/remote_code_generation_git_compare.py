@@ -2,13 +2,14 @@
 # © 2021 TechnoLibre (http://www.technolibre.ca)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-import os
 import argparse
 import logging
+import os
 import shutil
-import tempfile
-from git import Repo
 import subprocess
+import tempfile
+
+from git import Repo
 
 _logger = logging.getLogger(__name__)
 
