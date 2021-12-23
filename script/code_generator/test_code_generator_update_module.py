@@ -75,7 +75,8 @@ def main():
 
     if lst_result_wrong:
         _logger.error(
-            f"FAIL - Some modules wasn't updated, did you execute the code generator? {lst_result_wrong}"
+            "FAIL - Some modules wasn't updated, did you execute the code"
+            f" generator? {lst_result_wrong}"
         )
         return -1
     elif lst_result_good:
