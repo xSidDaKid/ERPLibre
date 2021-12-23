@@ -377,15 +377,21 @@ meld_code_generator_code_generator:
 	./script/make.sh clean
 	meld ./addons/TechnoLibre_odoo-code-generator-template/code_generator ./addons/TechnoLibre_odoo-code-generator/code_generator
 
-
 ########################
 #  Extra migrator sql  #
 ########################
-.PHONY: addons_install_code_generator_migrator_demo_mariadb_sql_example_1
-addons_install_code_generator_migrator_demo_mariadb_sql_example_1:
+.PHONY: addons_install_code_generator_mariadb_sql_example_1
+addons_install_code_generator_mariadb_sql_example_1:
+	./script/database/restore_mariadb_sql_example_1.sh
 	./script/db_restore.py --database code_generator
 	./script/addons/install_addons_dev.sh code_generator code_generator_portal
 	./script/addons/install_addons_dev.sh code_generator code_generator_migrator_demo_mariadb_sql_example_1
+	./script/db_restore.py --database template
+	./script/addons/install_addons_dev.sh template code_generator_portal,demo_mariadb_sql_example_1
+	./script/code_generator/search_class_model.py --quiet -d addons/TechnoLibre_odoo-code-generator-template/demo_mariadb_sql_example_1 -t addons/TechnoLibre_odoo-code-generator-template/code_generator_template_demo_mariadb_sql_example_1
+	./script/addons/install_addons_dev.sh template code_generator_template_demo_mariadb_sql_example_1
+	./script/db_restore.py --database code_generator
+	./script/addons/install_addons_dev.sh code_generator code_generator_demo_mariadb_sql_example_1
 
 ##########
 #  test  #
@@ -497,7 +503,7 @@ test_code_generator_migrator_demo_mariadb_sql_example_1:
 	./script/db_restore.py --database code_generator
 	./script/addons/install_addons_dev.sh code_generator code_generator_portal
 	#./script/addons/install_addons_dev.sh code_generator code_generator_migrator_demo_mariadb_sql_example_1
-	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_migrator_demo_mariadb_sql_example_1 ./addons/TechnoLibre_odoo-code-generator-template code_generator_demo_mariadb_sql_example_1
+	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_migrator_demo_mariadb_sql_example_1 ./addons/TechnoLibre_odoo-code-generator-template demo_mariadb_sql_example_1
 
 .PHONY: test_code_generator_template_demo_mariadb_sql_example_1
 test_code_generator_template_demo_mariadb_sql_example_1:
@@ -505,7 +511,7 @@ test_code_generator_template_demo_mariadb_sql_example_1:
 	./script/db_restore.py --database template
 	./script/addons/install_addons_dev.sh template code_generator_portal,demo_mariadb_sql_example_1
 	./script/code_generator/search_class_model.py --quiet -d addons/TechnoLibre_odoo-code-generator-template/demo_mariadb_sql_example_1 -t addons/TechnoLibre_odoo-code-generator-template/code_generator_template_demo_mariadb_sql_example_1
-	#./script/addons/install_addons_dev.sh code_generator code_generator_template_demo_mariadb_sql_example_1
+	#./script/addons/install_addons_dev.sh template code_generator_template_demo_mariadb_sql_example_1
 	./script/code_generator/install_and_test_code_generator.sh template code_generator_template_demo_mariadb_sql_example_1 ./addons/TechnoLibre_odoo-code-generator-template code_generator_demo_mariadb_sql_example_1
 
 .PHONY: test_code_generator_demo_mariadb_sql_example_1
@@ -513,6 +519,7 @@ test_code_generator_demo_mariadb_sql_example_1:
 	./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
 	./script/db_restore.py --database code_generator
 	# TODO broken
+	#./script/addons/install_addons_dev.sh code_generator code_generator_demo_mariadb_sql_example_1
 	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_mariadb_sql_example_1 ./addons/TechnoLibre_odoo-code-generator-template demo_mariadb_sql_example_1
 
 ##############
