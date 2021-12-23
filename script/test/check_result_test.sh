@@ -35,41 +35,40 @@ else
   COUNT_ERROR=$(echo "${ERROR_MESSAGE}"|wc -l)
 fi
 
-echo -e "${Blue}Summary of check result${Color_Off}"
-if (("${COUNT_WARNING}" > 0)); then
-  if (("${COUNT_WARNING}" > 1)); then
+echo_count_warnings () {
+    if (("${COUNT_WARNING}" > 1)); then
     echo -e "${Yellow}${COUNT_WARNING} WARNINGS${Color_Off}"
   else
     echo -e "${Yellow}${COUNT_WARNING} WARNING${Color_Off}"
   fi
-fi
-
-if (("${COUNT_ERROR}" > 0)); then
-  if (("${COUNT_ERROR}" > 1)); then
+}
+echo_count_errors () {
+    if (("${COUNT_ERROR}" > 1)); then
     echo -e "${Red}${COUNT_ERROR} ERRORS${Color_Off}"
   else
     echo -e "${Red}${COUNT_ERROR} ERROR${Color_Off}"
   fi
+}
+
+echo -e "${Blue}Summary of check result${Color_Off}"
+if (("${COUNT_WARNING}" > 0)); then
+  echo_count_warnings
+fi
+
+if (("${COUNT_ERROR}" > 0)); then
+  echo_count_errors
 fi
 
 if (("${COUNT_WARNING}" > 0)); then
   if (("${COUNT_ERROR}" > 0)); then
-    if (("${COUNT_WARNING}" > 1)); then
-      echo -e "${Yellow}${COUNT_WARNING} WARNINGS${Color_Off}"
-    else
-      echo -e "${Yellow}${COUNT_WARNING} WARNING${Color_Off}"
-    fi
+    echo_count_warnings
   fi
   echo -e "${WARNING_MESSAGE}"
 fi
 
 if (("${COUNT_ERROR}" > 0)); then
   if (("${COUNT_WARNING}" > 0)); then
-    if (("${COUNT_ERROR}" > 1)); then
-      echo -e "${Red}${COUNT_ERROR} ERRORS${Color_Off}"
-    else
-      echo -e "${Red}${COUNT_ERROR} ERROR${Color_Off}"
-    fi
+    echo_count_errors
   fi
   echo -e "${ERROR_MESSAGE}"
 fi
