@@ -409,6 +409,7 @@ test_full:
 	-rm ${LOG_FILE}
 	./script/make.sh test_base |& tee -a ${LOG_FILE}
 	./script/make.sh test_extra |& tee -a ${LOG_FILE}
+	./script/make.sh doc |& tee -a ${LOG_FILE}
 	./script/test/check_result_test.sh ${LOG_FILE}
 
 .PHONY: test_base
@@ -749,11 +750,20 @@ clean:
 ###################
 # documentation all
 .PHONY: doc
-doc: doc_dev doc_migration doc_test doc_user
+doc:
+	./script/make.sh doc_dev
+	./script/make.sh doc_migration
+	./script/make.sh doc_test
+	./script/make.sh doc_user
+	./script/make.sh doc_markdown
 
 # documentation clean all
 .PHONY: doc_clean
-doc_clean: doc_clean_dev doc_clean_migration doc_clean_test doc_clean_user
+doc_clean:
+	./script/make.sh doc_clean_dev
+	./script/make.sh doc_clean_migration
+	./script/make.sh doc_clean_test
+	./script/make.sh doc_clean_user
 
 # documentation dev
 .PHONY: doc_dev
