@@ -449,7 +449,7 @@ test_code_generator_generation:
 	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_demo_internal_inherit ./addons/TechnoLibre_odoo-code-generator-template demo_internal_inherit
 	# auto_backup
 	./script/db_restore.py --database code_generator
-#	./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_auto_backup ./addons/OCA_server-tools/auto_backup auto_backup
+	#./script/code_generator/install_and_test_code_generator.sh code_generator code_generator_auto_backup ./addons/OCA_server-tools/auto_backup auto_backup
 
 	# Single
 	#./script/db_restore.py --database code_generator
