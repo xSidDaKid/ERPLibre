@@ -4,20 +4,27 @@ import logging
 import os
 import sys
 
+from git import Repo
+from git.exc import InvalidGitRepositoryError, NoSuchPathError
+
+CODE_GENERATOR_DIRECTORY = "./addons/TechnoLibre_odoo-code-generator-template/"
+CODE_GENERATOR_DEMO_NAME = "code_generator_demo"
+KEY_REPLACE_CODE_GENERATOR_DEMO = 'MODULE_NAME = "%s"'
+
 logging.basicConfig(
     format=(
         "%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d]"
         " %(message)s"
     ),
     datefmt="%Y-%m-%d:%H:%M:%S",
-    level=logging.DEBUG,
+    level=logging.INFO,
 )
 _logger = logging.getLogger(__name__)
 
-# TODO Check if exist
-# TODO change name into code_generator_demo
-# TODO Create code generator empty module with demo
-# TODO revert code_generator_demo
+# TODO Check if exist DONE
+# TODO change name into code_generator_demo DONE
+# TODO Create code generator empty module with demo DONE
+# TODO revert code_generator_demo DONE
 # TODO execute create_code_generator_from_existing_module.sh with force option
 # TODO open web interface on right database already selected locally with make run
 
@@ -35,7 +42,7 @@ def get_config():
         "-d",
         "--directory",
         required=True,
-        help="Directory of the module.",
+        help="Directory of the module, need to be a git root directory.",
     )
     parser.add_argument(
         "-m",
@@ -62,7 +69,13 @@ def get_config():
     parser.add_argument(
         "-f",
         "--force",
+        action="store_true",
         help="Force override directory and module.",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug output",
     )
     args = parser.parse_args()
     return args
@@ -133,24 +146,79 @@ class ProjectManagement:
             return default
         return f"code_generator_template_{self.module_name}"
 
+    def search_and_replace_file(self, filepath, search, replace):
+        with open(filepath, "r") as file:
+            txt = file.read()
+            if search not in txt:
+                self.msg_error = f"Cannot find '{search}' in file '{filepath}'"
+                _logger.error(self.msg_error)
+                return False
+            txt = txt.replace(search, replace)
+        with open(filepath, "w") as file:
+            file.write(txt)
+        return True
+
     @staticmethod
-    def validate_path_ready_to_be_override(path):
+    def validate_path_ready_to_be_override(name, directory, path=""):
+        if not path:
+            path = os.path.join(directory, name)
         if not os.path.exists(path):
             return True
         # Check if in git
-        pass
+        try:
+            git_repo = Repo(directory)
+        except NoSuchPathError:
+            _logger.error(f"Directory not existing '{directory}'")
+            return False
+        except InvalidGitRepositoryError:
+            _logger.error(
+                f"The path '{path}' exist, but no git repo, use force to"
+                " ignore it."
+            )
+            return False
+
+        status = git_repo.git.status(name, porcelain=True)
+        if status:
+            _logger.error(
+                f"The directory '{path}' has git difference, use force to"
+                " ignore it."
+            )
+            print(status)
+            return False
+        return True
+
+    @staticmethod
+    def restore_git_code_generator_demo(
+        code_generator_demo_path, relative_path
+    ):
+        try:
+            git_repo = Repo(code_generator_demo_path)
+        except NoSuchPathError:
+            _logger.error(
+                f"Directory not existing '{code_generator_demo_path}'"
+            )
+            return False
+        except InvalidGitRepositoryError:
+            _logger.error(
+                f"The path '{code_generator_demo_path}' exist, but no git repo"
+            )
+            return False
+
+        git_repo.git.restore(relative_path)
 
     def generate_module(self):
         module_path = os.path.join(self.module_directory, self.module_name)
-        if not self.force and self.validate_path_ready_to_be_override(
-            module_path
+        if not self.force and not self.validate_path_ready_to_be_override(
+            self.module_name, self.module_directory, path=module_path
         ):
             self.msg_error = f"Cannot generate on module path '{module_path}'"
             _logger.error(self.msg_error)
             return False
 
         cg_path = os.path.join(self.cg_directory, self.cg_name)
-        if not self.force and self.validate_path_ready_to_be_override(cg_path):
+        if not self.force and not self.validate_path_ready_to_be_override(
+            self.cg_name, self.cg_directory, path=cg_path
+        ):
             self.msg_error = f"Cannot generate on cg path '{cg_path}'"
             _logger.error(self.msg_error)
             return False
@@ -158,8 +226,8 @@ class ProjectManagement:
         template_path = os.path.join(
             self.template_directory, self.template_name
         )
-        if not self.force and self.validate_path_ready_to_be_override(
-            template_path
+        if not self.force and not self.validate_path_ready_to_be_override(
+            self.template_name, self.template_directory, path=template_path
         ):
             self.msg_error = (
                 f"Cannot generate on template path '{template_path}'"
@@ -167,9 +235,51 @@ class ProjectManagement:
             _logger.error(self.msg_error)
             return False
 
+        # Validate code_generator_demo
+        code_generator_demo_path = os.path.join(
+            CODE_GENERATOR_DIRECTORY, CODE_GENERATOR_DEMO_NAME
+        )
+        code_generator_demo_hooks_py = os.path.join(
+            code_generator_demo_path, "hooks.py"
+        )
+        code_generator_hooks_path_relative = os.path.join(
+            CODE_GENERATOR_DEMO_NAME, "hooks.py"
+        )
+        if not os.path.exists(code_generator_demo_path):
+            self.msg_error = (
+                "code_generator_demo is not accessible"
+                f" '{code_generator_demo_path}'"
+            )
+            _logger.error(self.msg_error)
+            return False
+        if not (
+            self.validate_path_ready_to_be_override(
+                CODE_GENERATOR_DEMO_NAME, CODE_GENERATOR_DIRECTORY
+            )
+            and self.search_and_replace_file(
+                code_generator_demo_hooks_py,
+                KEY_REPLACE_CODE_GENERATOR_DEMO % CODE_GENERATOR_DEMO_NAME,
+                KEY_REPLACE_CODE_GENERATOR_DEMO % self.module_name,
+            )
+        ):
+            return False
+        os.system("./script/db_restore.py --database code_generator")
+        os.system(
+            "./script/addons/install_addons_dev.sh code_generator"
+            " code_generator_demo"
+        )
+        # Revert code_generator_demo
+        self.restore_git_code_generator_demo(
+            CODE_GENERATOR_DIRECTORY, code_generator_hooks_path_relative
+        )
+        _logger.info("Finish the generation")
+        return True
+
 
 def main():
     config = get_config()
+    if config.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
     project = ProjectManagement(
         config.module,
         config.directory,
@@ -180,9 +290,10 @@ def main():
     if project.msg_error:
         return -1
 
-    if project.generate_module():
+    if not project.generate_module():
         return -1
 
+    print("finish")
     return 0
 
 
