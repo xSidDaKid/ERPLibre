@@ -146,14 +146,20 @@ class ProjectManagement:
             return default
         return f"code_generator_template_{self.module_name}"
 
-    def search_and_replace_file(self, filepath, search, replace):
+    def search_and_replace_file(self, filepath, lst_search_and_replace):
+        """
+        lst_search_and_replace is a list of tuple, first item is search, second is replace
+        """
         with open(filepath, "r") as file:
             txt = file.read()
-            if search not in txt:
-                self.msg_error = f"Cannot find '{search}' in file '{filepath}'"
-                _logger.error(self.msg_error)
-                return False
-            txt = txt.replace(search, replace)
+            for search, replace in lst_search_and_replace:
+                if search not in txt:
+                    self.msg_error = (
+                        f"Cannot find '{search}' in file '{filepath}'"
+                    )
+                    _logger.error(self.msg_error)
+                    return False
+                txt = txt.replace(search, replace)
         with open(filepath, "w") as file:
             file.write(txt)
         return True
@@ -258,21 +264,57 @@ class ProjectManagement:
             )
             and self.search_and_replace_file(
                 code_generator_demo_hooks_py,
-                KEY_REPLACE_CODE_GENERATOR_DEMO % CODE_GENERATOR_DEMO_NAME,
-                KEY_REPLACE_CODE_GENERATOR_DEMO % self.module_name,
+                [
+                    (
+                        KEY_REPLACE_CODE_GENERATOR_DEMO
+                        % CODE_GENERATOR_DEMO_NAME,
+                        KEY_REPLACE_CODE_GENERATOR_DEMO % self.template_name,
+                    ),
+                    (
+                        'value["enable_sync_template"] = False',
+                        'value["enable_sync_template"] = True',
+                    ),
+                ],
             )
         ):
             return False
-        os.system("./script/db_restore.py --database code_generator")
-        os.system(
+        cmd = "./script/db_restore.py --database code_generator"
+        _logger.info(cmd)
+        os.system(cmd)
+        _logger.info("========= GENERATE code_generator_demo =========")
+        cmd = (
             "./script/addons/install_addons_dev.sh code_generator"
             " code_generator_demo"
         )
+        os.system(cmd)
         # Revert code_generator_demo
         self.restore_git_code_generator_demo(
             CODE_GENERATOR_DIRECTORY, code_generator_hooks_path_relative
         )
-        _logger.info("Finish the generation")
+
+        # Execute all
+        cmd = "./script/db_restore.py --database template"
+        os.system(cmd)
+        _logger.info(cmd)
+        _logger.info(f"========= GENERATE {self.template_name} =========")
+        cmd = (
+            "./script/addons/install_addons_dev.sh template"
+            f" {self.template_name}"
+        )
+        _logger.info(cmd)
+        os.system(cmd)
+
+        cmd = "./script/db_restore.py --database code_generator"
+        _logger.info(cmd)
+        os.system(cmd)
+        _logger.info(f"========= GENERATE {self.cg_name} =========")
+
+        cmd = (
+            "./script/addons/install_addons_dev.sh code_generator"
+            f" {self.cg_name}"
+        )
+        _logger.info(cmd)
+        os.system(cmd)
         return True
 
 
@@ -293,7 +335,6 @@ def main():
     if not project.generate_module():
         return -1
 
-    print("finish")
     return 0
 
 
