@@ -13,7 +13,7 @@ LOG_FILE="${1}"
 echo "== RESULT from ${LOG_FILE} =="
 WARNING_MESSAGE=$(grep -i warning "${LOG_FILE}")
 WARNING_MESSAGE=$(echo "${WARNING_MESSAGE}"|grep -v "have the same label:")
-WARNING_MESSAGE=$(echo "${WARNING_MESSAGE}"|grep -v "WARNING template odoo.addons.code_generator.extractor_module_file: Ignore next error about ALTER TABLE DROP CONSTRAINT.")
+WARNING_MESSAGE=$(echo "${WARNING_MESSAGE}"|grep -v "odoo.addons.code_generator.extractor_module_file: Ignore next error about ALTER TABLE DROP CONSTRAINT.")
 # Remove empty line
 if [[ -z "${WARNING_MESSAGE// }" ]]; then
   COUNT_WARNING=0
@@ -23,11 +23,11 @@ fi
 
 ERROR_MESSAGE=$(grep -i error "${LOG_FILE}")
 ERROR_MESSAGE=$(echo "${ERROR_MESSAGE}"|grep -v "fetchmail_notify_error_to_sender")
-ERROR_MESSAGE=$(echo "${ERROR_MESSAGE}"|grep -v "ERROR template odoo.sql_db: bad query: ALTER TABLE \"db_backup\" DROP CONSTRAINT \"db_backup_db_backup_name_unique\"")
+ERROR_MESSAGE=$(echo "${ERROR_MESSAGE}"|grep -v "odoo.sql_db: bad query: ALTER TABLE \"db_backup\" DROP CONSTRAINT \"db_backup_db_backup_name_unique\"")
 ERROR_MESSAGE=$(echo "${ERROR_MESSAGE}"|grep -v "ERROR: constraint \"db_backup_db_backup_name_unique\" of relation \"db_backup\" does not exist")
-ERROR_MESSAGE=$(echo "${ERROR_MESSAGE}"|grep -v "ERROR template odoo.sql_db: bad query: ALTER TABLE \"db_backup\" DROP CONSTRAINT \"db_backup_db_backup_days_to_keep_positive\"")
+ERROR_MESSAGE=$(echo "${ERROR_MESSAGE}"|grep -v "odoo.sql_db: bad query: ALTER TABLE \"db_backup\" DROP CONSTRAINT \"db_backup_db_backup_days_to_keep_positive\"")
 ERROR_MESSAGE=$(echo "${ERROR_MESSAGE}"|grep -v "ERROR: constraint \"db_backup_db_backup_days_to_keep_positive\" of relation \"db_backup\" does not exist")
-ERROR_MESSAGE=$(echo "${ERROR_MESSAGE}"|grep -v "WARNING template odoo.addons.code_generator.extractor_module_file: Ignore next error about ALTER TABLE DROP CONSTRAINT.")
+ERROR_MESSAGE=$(echo "${ERROR_MESSAGE}"|grep -v "odoo.addons.code_generator.extractor_module_file: Ignore next error about ALTER TABLE DROP CONSTRAINT.")
 # Remove empty line
 if [[ -z "${ERROR_MESSAGE// }" ]]; then
   COUNT_ERROR=0
@@ -59,6 +59,7 @@ if (("${COUNT_ERROR}" > 0)); then
   echo_count_errors
 fi
 
+echo -e "${Blue}Log result${Color_Off}"
 if (("${COUNT_WARNING}" > 0)); then
   if (("${COUNT_ERROR}" > 0)); then
     echo_count_warnings
