@@ -415,6 +415,7 @@ test_full:
 .PHONY: test_base
 test_base:
 	./script/make.sh test_format
+	./script/make.sh test_code_generator_hello_world
 	./script/make.sh test_installation_demo
 	./script/make.sh test_code_generator_generation
 	./script/make.sh test_code_generator_generation_template
@@ -429,6 +430,10 @@ test_extra:
 test_format:
 	./script/maintenance/black.sh --check ./addons/TechnoLibre_odoo-code-generator/
 	./script/maintenance/black.sh --check ./addons/TechnoLibre_odoo-code-generator-template/
+
+.PHONY: test_code_generator_hello_world
+test_code_generator_hello_world:
+	./test/code_generator/hello_world.sh
 
 .PHONY: test_installation_demo
 test_installation_demo:
