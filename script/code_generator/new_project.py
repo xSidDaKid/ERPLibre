@@ -3,6 +3,7 @@ import argparse
 import logging
 import os
 import sys
+import uuid
 
 from git import Repo
 from git.exc import InvalidGitRepositoryError, NoSuchPathError
@@ -81,6 +82,11 @@ def get_config():
         ),
     )
     parser.add_argument(
+        "--keep_bd_alive",
+        action="store_true",
+        help="By default, the bd is cleaned after a run.",
+    )
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="Enable debug output",
@@ -100,9 +106,11 @@ class ProjectManagement:
         template_directory="",
         force=False,
         ignore_config=False,
+        keep_bd_alive=False,
     ):
         self.force = force
         self.ignore_config = ignore_config
+        self.keep_bd_alive = keep_bd_alive
         self.msg_error = ""
         self.origin_config_txt = ""
         self.has_config_update = False
@@ -310,15 +318,25 @@ class ProjectManagement:
             return False
         self.update_config()
 
-        cmd = "./script/db_restore.py --database code_generator"
+        bd_name_demo = f"new_project_code_generator_demo_{uuid.uuid1()}"[:63]
+        cmd = f"./script/db_restore.py --database {bd_name_demo}"
         _logger.info(cmd)
         os.system(cmd)
         _logger.info("========= GENERATE code_generator_demo =========")
         cmd = (
-            "./script/addons/install_addons_dev.sh code_generator"
+            f"./script/addons/install_addons_dev.sh {bd_name_demo}"
             " code_generator_demo"
         )
         os.system(cmd)
+
+        if not self.keep_bd_alive:
+            cmd = (
+                "./.venv/bin/python3 ./odoo/odoo-bin db --drop --database"
+                f" {bd_name_demo}"
+            )
+            _logger.info(cmd)
+            os.system(cmd)
+
         # Revert code_generator_demo
         self.restore_git_code_generator_demo(
             CODE_GENERATOR_DIRECTORY, code_generator_hooks_path_relative
@@ -343,16 +361,16 @@ class ProjectManagement:
         )
 
         # Execute all
-        cmd = "./script/db_restore.py --database template"
+        bd_name_template = (
+            f"new_project_code_generator_template_{uuid.uuid1()}"
+        )[:63]
+        cmd = f"./script/db_restore.py --database {bd_name_template}"
         os.system(cmd)
         _logger.info(cmd)
         _logger.info(f"========= GENERATE {self.template_name} =========")
         # TODO maybe the module exist somewhere else
         if os.path.exists(module_path):
             # Install module before running code generator
-            """
-            ./script/code_generator/search_class_model.py --quiet -d addons/OCA_server-tools/auto_backup/ -t addons/OCA_server-tools/code_generator_template_auto_backup
-            """
             cmd = (
                 "./script/code_generator/search_class_model.py --quiet -d"
                 f" {module_path} -t {template_path}"
@@ -360,18 +378,26 @@ class ProjectManagement:
             _logger.info(cmd)
             os.system(cmd)
             cmd = (
-                "./script/addons/install_addons_dev.sh template"
+                f"./script/addons/install_addons_dev.sh {bd_name_template}"
                 f" {self.module_name}"
             )
             _logger.info(cmd)
             os.system(cmd)
 
         cmd = (
-            "./script/addons/install_addons_dev.sh template"
+            f"./script/addons/install_addons_dev.sh {bd_name_template}"
             f" {self.template_name}"
         )
         _logger.info(cmd)
         os.system(cmd)
+
+        if not self.keep_bd_alive:
+            cmd = (
+                "./.venv/bin/python3 ./odoo/odoo-bin db --drop --database"
+                f" {bd_name_template}"
+            )
+            _logger.info(cmd)
+            os.system(cmd)
 
         # Validate
         if not os.path.exists(cg_path):
@@ -381,17 +407,26 @@ class ProjectManagement:
         else:
             _logger.info(f"Module cg exists '{cg_path}'")
 
-        cmd = "./script/db_restore.py --database code_generator"
+        bd_name_generator = f"new_project_code_generator_{uuid.uuid1()}"
+        cmd = f"./script/db_restore.py --database {bd_name_generator}"
         _logger.info(cmd)
         os.system(cmd)
         _logger.info(f"========= GENERATE {self.cg_name} =========")
 
         cmd = (
-            "./script/addons/install_addons_dev.sh code_generator"
+            f"./script/addons/install_addons_dev.sh {bd_name_generator}"
             f" {self.cg_name}"
         )
         _logger.info(cmd)
         os.system(cmd)
+
+        if not self.keep_bd_alive:
+            cmd = (
+                "./.venv/bin/python3 ./odoo/odoo-bin db --drop --database"
+                f" {bd_name_generator}"
+            )[:63]
+            _logger.info(cmd)
+            os.system(cmd)
 
         # Validate
         if not os.path.exists(template_path):
@@ -448,6 +483,7 @@ def main():
         template_name=config.template_name,
         force=config.force,
         ignore_config=config.do_not_update_config,
+        keep_bd_alive=config.keep_bd_alive,
     )
     if project.msg_error:
         return -1
