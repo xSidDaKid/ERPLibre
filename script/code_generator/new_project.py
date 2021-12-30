@@ -94,6 +94,8 @@ class ProjectManagement:
     ):
         self.force = force
         self.msg_error = ""
+        self.origin_config_txt = ""
+        self.has_config_update = False
 
         self.module_directory = module_directory
         if not os.path.exists(self.module_directory):
@@ -258,6 +260,7 @@ class ProjectManagement:
             )
             _logger.error(self.msg_error)
             return False
+
         if not (
             self.validate_path_ready_to_be_override(
                 CODE_GENERATOR_DEMO_NAME, CODE_GENERATOR_DIRECTORY
@@ -274,10 +277,29 @@ class ProjectManagement:
                         'value["enable_sync_template"] = False',
                         'value["enable_sync_template"] = True',
                     ),
+                    (
+                        "# path_module_generate ="
+                        " os.path.normpath(os.path.join(os.path.dirname(__file__),"
+                        " '..'))",
+                        f'path_module_generate = "{self.module_directory}"',
+                    ),
+                    (
+                        '# "path_sync_code": path_module_generate,',
+                        '"path_sync_code": path_module_generate,',
+                    ),
+                    (
+                        '# value["template_module_path_generated_extension"]'
+                        ' = "."',
+                        'value["template_module_path_generated_extension"] ='
+                        f' "{self.cg_directory}"',
+                    ),
                 ],
             )
         ):
             return False
+
+        self.update_config()
+
         cmd = "./script/db_restore.py --database code_generator"
         _logger.info(cmd)
         os.system(cmd)
@@ -292,6 +314,14 @@ class ProjectManagement:
             CODE_GENERATOR_DIRECTORY, code_generator_hooks_path_relative
         )
 
+        # Validate
+        if not os.path.exists(template_path):
+            _logger.error(f"Module template not exists '{template_path}'")
+            self.revert_config()
+            return False
+        else:
+            _logger.info(f"Module template exists '{template_path}'")
+
         # Execute all
         cmd = "./script/db_restore.py --database template"
         os.system(cmd)
@@ -304,6 +334,14 @@ class ProjectManagement:
         _logger.info(cmd)
         os.system(cmd)
 
+        # Validate
+        if not os.path.exists(cg_path):
+            _logger.error(f"Module cg not exists '{cg_path}'")
+            self.revert_config()
+            return False
+        else:
+            _logger.info(f"Module cg exists '{cg_path}'")
+
         cmd = "./script/db_restore.py --database code_generator"
         _logger.info(cmd)
         os.system(cmd)
@@ -315,7 +353,45 @@ class ProjectManagement:
         )
         _logger.info(cmd)
         os.system(cmd)
+
+        # Validate
+        if not os.path.exists(template_path):
+            _logger.error(f"Module not exists '{module_path}'")
+            self.revert_config()
+            return False
+        else:
+            _logger.info(f"Module exists '{module_path}'")
+
+        self.revert_config()
         return True
+
+    def update_config(self):
+        # Backup config and restore it after, check if path exist or add it temporary
+        with open("./config.conf") as config:
+            config_txt = config.read()
+            self.origin_config_txt = config_txt
+            lst_directory = list(
+                {
+                    self.cg_directory,
+                    self.module_directory,
+                    self.template_directory,
+                }
+            )
+            lst_directory_to_add = []
+            for directory in lst_directory:
+                if directory not in config_txt:
+                    self.has_config_update = True
+                    lst_directory_to_add.append(directory)
+
+        if lst_directory_to_add:
+            new_str = "addons_path = " + ",".join(lst_directory_to_add) + ","
+            config_txt = config_txt.replace("addons_path = ", new_str)
+            with open("./config.conf", "w") as config:
+                config.write(config_txt)
+
+    def revert_config(self):
+        with open("./config.conf", "w") as config:
+            config.write(self.origin_config_txt)
 
 
 def main():
