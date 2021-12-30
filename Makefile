@@ -571,7 +571,7 @@ format_accorderie:
 
 .PHONY: format_script
 format_script:
-	#.venv/bin/isort --profile black -l 79 ./script/
+	#.venv/bin/isort --profile black -l 79 ./script/ --gitignore
 	./script/maintenance/black.sh ./script/
 
 ###########
