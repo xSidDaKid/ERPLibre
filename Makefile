@@ -409,7 +409,7 @@ test_full:
 	-rm ${LOG_FILE}
 	./script/make.sh test_base |& tee -a ${LOG_FILE}
 	./script/make.sh test_extra |& tee -a ${LOG_FILE}
-	./script/make.sh doc |& tee -a ${LOG_FILE}
+	#./script/make.sh doc |& tee -a ${LOG_FILE}
 	./script/test/check_result_test.sh ${LOG_FILE}
 
 .PHONY: test_base
@@ -775,6 +775,9 @@ doc_clean:
 .PHONY: doc_dev
 doc_dev:
 	source ./.venv/bin/activate && make -C doc/itpp-labs_odoo-development/docs html || exit 1
+
+.PHONY: open_doc_dev
+open_doc_dev:
 	-$(BROWSER) doc/itpp-labs_odoo-development/docs/_build/html/index.html
 
 .PHONY: doc_clean_dev
@@ -785,6 +788,9 @@ doc_clean_dev:
 .PHONY: doc_migration
 doc_migration:
 	source ./.venv/bin/activate && make -C doc/itpp-labs_odoo-port-docs/docs html || exit 1
+
+.PHONY: open_doc_migration
+open_doc_migration:
 	-$(BROWSER) doc/itpp-labs_odoo-port-docs/docs/_build/html/index.html
 
 .PHONY: doc_clean_migration
@@ -795,6 +801,9 @@ doc_clean_migration:
 .PHONY: doc_test
 doc_test:
 	source ./.venv/bin/activate && make -C doc/itpp-labs_odoo-test-docs/doc-src html || exit 1
+
+.PHONY: open_doc_test
+open_doc_test:
 	-$(BROWSER) doc/itpp-labs_odoo-test-docs/doc-src/_build/html/index.html
 
 .PHONY: doc_clean_test
@@ -805,6 +814,9 @@ doc_clean_test:
 .PHONY: doc_user
 doc_user:
 	source ./.venv/bin/activate && make -C doc/odoo_documentation-user html || exit 1
+
+.PHONY: open_doc_user
+open_doc_user:
 	-$(BROWSER) doc/odoo_documentation-user/_build/html/index.html
 
 .PHONY: doc_clean_user
