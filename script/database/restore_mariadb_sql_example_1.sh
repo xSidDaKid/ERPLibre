@@ -2,8 +2,16 @@
 
 SQL_PATH=./script/database/mariadb_sql_example_1.sql
 
+# You need to set no password to mysql root user
+# SET PASSWORD FOR root@localhost='';
+# FLUSH PRIVILEGES;
+
+# Second solution
+# ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
+# FLUSH PRIVILEGES;
+
 echo "Create database and user"
-sudo mysql -u root << EOF
+mysql -u root << EOF
 DROP DATABASE IF EXISTS mariadb_sql_example_1;
 CREATE USER IF NOT EXISTS 'organization'@'localhost' IDENTIFIED BY 'organization';
 GRANT ALL PRIVILEGES ON *.* TO 'organization'@'localhost' IDENTIFIED BY 'organization';
