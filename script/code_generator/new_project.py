@@ -73,6 +73,14 @@ def get_config():
         help="Force override directory and module.",
     )
     parser.add_argument(
+        "--do_not_update_config",
+        action="store_true",
+        help=(
+            "Ignore updating config file. This is a patch for a bug for"
+            " duplicate path, but 1 relative and the other is absolute."
+        ),
+    )
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="Enable debug output",
@@ -91,8 +99,10 @@ class ProjectManagement:
         template_name="",
         template_directory="",
         force=False,
+        ignore_config=False,
     ):
         self.force = force
+        self.ignore_config = ignore_config
         self.msg_error = ""
         self.origin_config_txt = ""
         self.has_config_update = False
@@ -234,6 +244,7 @@ class ProjectManagement:
         template_path = os.path.join(
             self.template_directory, self.template_name
         )
+        template_hooks_py = os.path.join(template_path, "hooks.py")
         if not self.force and not self.validate_path_ready_to_be_override(
             self.template_name, self.template_directory, path=template_path
         ):
@@ -297,7 +308,6 @@ class ProjectManagement:
             )
         ):
             return False
-
         self.update_config()
 
         cmd = "./script/db_restore.py --database code_generator"
@@ -322,11 +332,40 @@ class ProjectManagement:
         else:
             _logger.info(f"Module template exists '{template_path}'")
 
+        self.search_and_replace_file(
+            template_hooks_py,
+            [
+                (
+                    'value["enable_template_wizard_view"] = False',
+                    'value["enable_template_wizard_view"] = True',
+                ),
+            ],
+        )
+
         # Execute all
         cmd = "./script/db_restore.py --database template"
         os.system(cmd)
         _logger.info(cmd)
         _logger.info(f"========= GENERATE {self.template_name} =========")
+        # TODO maybe the module exist somewhere else
+        if os.path.exists(module_path):
+            # Install module before running code generator
+            """
+            ./script/code_generator/search_class_model.py --quiet -d addons/OCA_server-tools/auto_backup/ -t addons/OCA_server-tools/code_generator_template_auto_backup
+            """
+            cmd = (
+                "./script/code_generator/search_class_model.py --quiet -d"
+                f" {module_path} -t {template_path}"
+            )
+            _logger.info(cmd)
+            os.system(cmd)
+            cmd = (
+                "./script/addons/install_addons_dev.sh template"
+                f" {self.module_name}"
+            )
+            _logger.info(cmd)
+            os.system(cmd)
+
         cmd = (
             "./script/addons/install_addons_dev.sh template"
             f" {self.template_name}"
@@ -366,6 +405,8 @@ class ProjectManagement:
         return True
 
     def update_config(self):
+        if self.ignore_config:
+            return
         # Backup config and restore it after, check if path exist or add it temporary
         with open("./config.conf") as config:
             config_txt = config.read()
@@ -390,6 +431,8 @@ class ProjectManagement:
                 config.write(config_txt)
 
     def revert_config(self):
+        if self.ignore_config:
+            return
         with open("./config.conf", "w") as config:
             config.write(self.origin_config_txt)
 
@@ -404,6 +447,7 @@ def main():
         cg_name=config.code_generator_name,
         template_name=config.template_name,
         force=config.force,
+        ignore_config=config.do_not_update_config,
     )
     if project.msg_error:
         return -1
