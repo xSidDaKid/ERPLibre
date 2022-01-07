@@ -412,6 +412,11 @@ test_full:
 	#./script/make.sh doc |& tee -a ${LOG_FILE}
 	./script/test/check_result_test.sh ${LOG_FILE}
 
+.PHONY: test_full_fast
+test_full_fast:
+	./script/make.sh clean
+	./script/test/run_parallel_test.py
+
 .PHONY: test_base
 test_base:
 	./script/make.sh test_format
@@ -583,7 +588,7 @@ format_script_isort_only:
 #########
 .PHONY: log_show_test
 log_show_test:
-	less -r ${LOG_FILE}
+	vim ${LOG_FILE}
 
 ###########
 #  clean  #
