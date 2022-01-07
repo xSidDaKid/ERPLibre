@@ -178,16 +178,19 @@ async def run_command(*args, test_name=None):
 
 async def test_exec(
     path_module_check: str,
-    module_to_install=None,
-    module_to_generate=None,
+    generated_module=None,
+    tested_module=None,
     search_class_module=None,
     script_after_init_check=None,
     lst_init_module_name=None,
     test_name=None,
+    install_path=None,
 ) -> Tuple[str, int]:
 
     test_result = ""
     test_status = 0
+    if install_path is None:
+        install_path = path_module_check
 
     # Check code, init module to install
     if lst_init_module_name:
@@ -202,11 +205,11 @@ async def test_exec(
             test_status += status
 
     # Check code, module to generate
-    if module_to_generate:
+    if tested_module:
         res, status = await run_command(
             "./script/code_generator/check_git_change_code_generator.sh",
             path_module_check,
-            module_to_generate,
+            tested_module,
             test_name=test_name,
         )
         test_result += res
@@ -242,7 +245,7 @@ async def test_exec(
         str_test = ",".join(lst_init_module_name)
         script_name = (
             "./script/addons/install_addons_dev.sh"
-            if module_to_generate
+            if tested_module
             else "./script/addons/install_addons.sh"
         )
         res, status = await run_command(
@@ -254,9 +257,9 @@ async def test_exec(
         test_result += res
         test_status += status
 
-    if not test_status and search_class_module and module_to_install:
+    if not test_status and search_class_module and generated_module:
         path_template_to_generate = os.path.join(
-            path_module_check, module_to_generate
+            path_module_check, tested_module
         )
         path_module_to_generate = os.path.join(
             path_module_check, search_class_module
@@ -276,16 +279,16 @@ async def test_exec(
         test_result += res
         test_status += status
 
-    if not test_status and module_to_generate and module_to_install:
+    if not test_status and tested_module and generated_module:
         # Parallel execution here
 
         # No parallel execution here
         res, status = await run_command(
             "./script/code_generator/install_and_test_code_generator.sh",
             unique_database_name,
-            module_to_generate,
-            path_module_check,
-            module_to_install,
+            tested_module,
+            install_path,
+            generated_module,
             test_name=test_name,
         )
         test_result += res
@@ -326,6 +329,14 @@ def check_git_change():
     return not status
 
 
+def print_summary_task(task_list):
+    for task in task_list:
+        print(task.cr_code.co_name)
+
+
+# START TEST
+
+
 async def run_demo_test() -> Tuple[str, int]:
     lst_test_name = [
         "demo_helpdesk_data",
@@ -352,17 +363,15 @@ async def run_mariadb_test() -> Tuple[str, int]:
     # Migrator
     res, status = await test_exec(
         "./addons/TechnoLibre_odoo-code-generator-template",
-        module_to_install="demo_mariadb_sql_example_1",
-        module_to_generate=(
-            "code_generator_migrator_demo_mariadb_sql_example_1"
-        ),
+        generated_module="demo_mariadb_sql_example_1",
+        tested_module="code_generator_migrator_demo_mariadb_sql_example_1",
         script_after_init_check=(
             "./script/database/restore_mariadb_sql_example_1.sh"
         ),
         lst_init_module_name=[
             "code_generator_portal",
         ],
-        test_name="mariadb_test",
+        test_name="mariadb_test-migrator",
     )
     test_result += res
     test_status += status
@@ -370,16 +379,14 @@ async def run_mariadb_test() -> Tuple[str, int]:
     # Template
     res, status = await test_exec(
         "./addons/TechnoLibre_odoo-code-generator-template",
-        module_to_install="code_generator_demo_mariadb_sql_example_1",
-        module_to_generate=(
-            "code_generator_template_demo_mariadb_sql_example_1"
-        ),
+        generated_module="code_generator_demo_mariadb_sql_example_1",
+        tested_module="code_generator_template_demo_mariadb_sql_example_1",
         search_class_module="demo_mariadb_sql_example_1",
         lst_init_module_name=[
             "code_generator_portal",
             "demo_mariadb_sql_example_1",
         ],
-        test_name="mariadb_test",
+        test_name="mariadb_test-template",
     )
     test_result += res
     test_status += status
@@ -387,9 +394,155 @@ async def run_mariadb_test() -> Tuple[str, int]:
     # Code generator
     res, status = await test_exec(
         "./addons/TechnoLibre_odoo-code-generator-template",
-        module_to_install="demo_mariadb_sql_example_1",
-        module_to_generate="code_generator_demo_mariadb_sql_example_1",
-        test_name="mariadb_test",
+        generated_module="demo_mariadb_sql_example_1",
+        tested_module="code_generator_demo_mariadb_sql_example_1",
+        test_name="mariadb_test-code-generator",
+    )
+    test_result += res
+    test_status += status
+
+    return test_result, test_status
+
+
+async def run_code_generator_multiple_test() -> Tuple[str, int]:
+    test_result = ""
+    test_status = 0
+    lst_generated_module = [
+        "code_generator_demo",
+        "demo_helpdesk_data",
+        "demo_website_data",
+        "demo_internal",
+        "demo_portal",
+        "theme_website_demo_code_generator",
+        "demo_website_leaflet",
+        "demo_website_snippet",
+    ]
+    lst_tested_module = [
+        "code_generator_demo",
+        "code_generator_demo_export_helpdesk",
+        "code_generator_demo_export_website",
+        "code_generator_demo_internal",
+        "code_generator_demo_portal",
+        "code_generator_demo_theme_website",
+        "code_generator_demo_website_leaflet",
+        "code_generator_demo_website_snippet",
+    ]
+    # Multiple
+    res, status = await test_exec(
+        "./addons/TechnoLibre_odoo-code-generator-template",
+        generated_module=",".join(lst_generated_module),
+        tested_module=",".join(lst_tested_module),
+        test_name="code_generator_multiple_test",
+    )
+    test_result += res
+    test_status += status
+
+    return test_result, test_status
+
+
+async def run_code_generator_inherit_test() -> Tuple[str, int]:
+    # TODO can be merge into code_generator_multiple
+    test_result = ""
+    test_status = 0
+    lst_generated_module = [
+        "demo_internal_inherit",
+    ]
+    lst_tested_module = [
+        "code_generator_demo_internal_inherit",
+    ]
+    # Inherit
+    res, status = await test_exec(
+        "./addons/TechnoLibre_odoo-code-generator-template",
+        generated_module=",".join(lst_generated_module),
+        tested_module=",".join(lst_tested_module),
+        test_name="code_generator_inherit_test",
+    )
+    test_result += res
+    test_status += status
+
+    return test_result, test_status
+
+
+async def run_code_generator_auto_backup_test() -> Tuple[str, int]:
+    test_result = ""
+    test_status = 0
+    lst_generated_module = [
+        "auto_backup",
+    ]
+    lst_tested_module = [
+        "code_generator_auto_backup",
+    ]
+    # Auto-backup
+    res, status = await test_exec(
+        "./addons/OCA_server-tools/auto_backup",
+        generated_module=",".join(lst_generated_module),
+        tested_module=",".join(lst_tested_module),
+        test_name="code_generator_auto_backup_test",
+    )
+    test_result += res
+    test_status += status
+
+    return test_result, test_status
+
+
+async def run_code_generator_template_demo_portal_test() -> Tuple[str, int]:
+    test_result = ""
+    test_status = 0
+    # Template
+    res, status = await test_exec(
+        "./addons/TechnoLibre_odoo-code-generator-template",
+        generated_module="code_generator_demo_portal",
+        tested_module="code_generator_template_demo_portal",
+        # search_class_module="demo_mariadb_sql_example_1",
+        lst_init_module_name=[
+            "demo_portal",
+        ],
+        test_name="code_generator_template_demo_portal",
+    )
+    test_result += res
+    test_status += status
+
+    return test_result, test_status
+
+
+async def run_code_generator_template_demo_internal_inherit_test() -> Tuple[
+    str, int
+]:
+    test_result = ""
+    test_status = 0
+    # Template
+    res, status = await test_exec(
+        "./addons/TechnoLibre_odoo-code-generator-template",
+        generated_module="code_generator_demo_internal_inherit",
+        tested_module="code_generator_template_demo_internal_inherit",
+        # search_class_module="code_generator_demo_internal_inherit",
+        lst_init_module_name=[
+            "demo_internal_inherit",
+        ],
+        test_name="code_generator_template_demo_internal_inherit",
+    )
+    test_result += res
+    test_status += status
+
+    return test_result, test_status
+
+
+async def run_code_generator_template_demo_sysadmin_cron_test() -> Tuple[
+    str, int
+]:
+    test_result = ""
+    test_status = 0
+    # Template
+    res, status = await test_exec(
+        "./addons/OCA_server-tools/auto_backup",
+        generated_module="code_generator_auto_backup",
+        tested_module="code_generator_template_demo_sysadmin_cron",
+        # search_class_module="code_generator_demo_internal_inherit",
+        lst_init_module_name=[
+            "auto_backup",
+        ],
+        test_name="code_generator_template_demo_sysadmin_cron",
+        install_path="./addons/TechnoLibre_odoo-code-generator-template",
     )
     test_result += res
     test_status += status
@@ -405,17 +558,18 @@ async def run_helloworld_test() -> Tuple[str, int]:
     return res, status
 
 
-def print_summary_task(task_list):
-    for task in task_list:
-        print(task.cr_code.co_name)
-
-
 def run_all_test() -> None:
     task_list = []
 
     task_list.append(run_demo_test())
     task_list.append(run_helloworld_test())
     task_list.append(run_mariadb_test())
+    task_list.append(run_code_generator_multiple_test())
+    task_list.append(run_code_generator_inherit_test())
+    task_list.append(run_code_generator_auto_backup_test())
+    task_list.append(run_code_generator_template_demo_portal_test())
+    task_list.append(run_code_generator_template_demo_internal_inherit_test())
+    task_list.append(run_code_generator_template_demo_sysadmin_cron_test())
 
     print_summary_task(task_list)
 
