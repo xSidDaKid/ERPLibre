@@ -574,6 +574,17 @@ format_script:
 	#.venv/bin/isort --profile black -l 79 ./script/ --gitignore
 	./script/maintenance/black.sh ./script/
 
+.PHONY: format_script_isort_only
+format_script_isort_only:
+	.venv/bin/isort --profile black -l 79 ./script/ --gitignore
+
+#########
+#  log  #
+#########
+.PHONY: log_show_test
+log_show_test:
+	less -r ${LOG_FILE}
+
 ###########
 #  clean  #
 ###########
