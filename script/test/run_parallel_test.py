@@ -26,6 +26,11 @@ def get_config():
         epilog="""\
 """,
     )
+    parser.add_argument(
+        "--ignore_init_check_git",
+        action="store_true",
+        help="Will not stop or init check if contain git change.",
+    )
     args = parser.parse_args()
     return args
 
@@ -51,36 +56,40 @@ lst_ignore_error = [
 ]
 
 
+def extract_result(result, test_name, lst_error, lst_warning):
+    lst_log = result[0].split("\n")
+    for log_line in lst_log:
+        is_ignore_error = False
+        if "error" in log_line.lower():
+            # Remove ignore error
+            for ignore_error in lst_ignore_error:
+                if ignore_error in log_line:
+                    is_ignore_error = True
+                    break
+            if not is_ignore_error:
+                lst_error.append(log_line)
+
+        is_ignore_warning = False
+        if "warning" in log_line.lower():
+            # Remove ignore warning
+            for ignore_warning in lst_ignore_warning:
+                if ignore_warning in log_line:
+                    is_ignore_warning = True
+                    break
+            if not is_ignore_warning:
+                lst_warning.append(log_line)
+    if result[1]:
+        lst_error.append(f"Return status error for test {test_name}")
+
+
 def check_result(task_list, tpl_result):
     lst_error = []
     lst_warning = []
 
     for i, result in enumerate(tpl_result):
-        lst_log = result[0].split("\n")
-        for log_line in lst_log:
-            is_ignore_error = False
-            if "error" in log_line.lower():
-                # Remove ignore error
-                for ignore_error in lst_ignore_error:
-                    if ignore_error in log_line:
-                        is_ignore_error = True
-                        break
-                if not is_ignore_error:
-                    lst_error.append(log_line)
-
-            is_ignore_warning = False
-            if "warning" in log_line.lower():
-                # Remove ignore warning
-                for ignore_warning in lst_ignore_warning:
-                    if ignore_warning in log_line:
-                        is_ignore_warning = True
-                        break
-                if not is_ignore_warning:
-                    lst_warning.append(log_line)
-        if result[1]:
-            lst_error.append(
-                f"Return status error for test {task_list[i].cr_code.co_name}"
-            )
+        extract_result(
+            result, task_list[i].cr_code.co_name, lst_error, lst_warning
+        )
 
     if lst_warning:
         print(f"{Fore.YELLOW}{len(lst_warning)} WARNING{Fore.RESET}")
@@ -125,7 +134,7 @@ def print_log(lst_task, tpl_result):
     print(f"Log file {LOG_FILE}")
 
 
-async def run_command(*args):
+async def run_command(*args, test_name=None):
     # Create subprocess
     start_time = time.time()
     process = await asyncio.create_subprocess_exec(
@@ -142,10 +151,29 @@ async def run_command(*args):
     str_out = "\n" + stdout.decode().strip() + "\n" if stdout else ""
     str_err = "\n" + stderr.decode().strip() + "\n" if stderr else ""
     status_str = "FAIL" if process.returncode else "PASS"
-    str_output_init = (
-        f"\n\n{status_str} [{diff_sec:.3f}s] Execute \"{' '.join(args)}\"\n\n"
-    )
-    return str_output_init + str_out + str_err, process.returncode
+    if test_name:
+        str_output_init = (
+            f"\n\n{status_str} {test_name} [{diff_sec:.3f}s] Execute"
+            f" \"{' '.join(args)}\"\n\n"
+        )
+    else:
+        str_output_init = (
+            f"\n\n{status_str} [{diff_sec:.3f}s] Execute"
+            f" \"{' '.join(args)}\"\n\n"
+        )
+    all_output = str_out + str_err
+    if process.returncode:
+        print(str_output_init)
+        lst_error = []
+        lst_warning = []
+        extract_result(
+            (all_output, process.returncode), test_name, lst_error, lst_warning
+        )
+        for error in lst_error:
+            print(f"\t{error}")
+        for warning in lst_warning:
+            print(f"\t{warning}")
+    return str_output_init + all_output, process.returncode
 
 
 async def test_exec(
@@ -155,6 +183,7 @@ async def test_exec(
     search_class_module=None,
     script_after_init_check=None,
     lst_init_module_name=None,
+    test_name=None,
 ) -> Tuple[str, int]:
 
     test_result = ""
@@ -167,6 +196,7 @@ async def test_exec(
                 "./script/code_generator/check_git_change_code_generator.sh",
                 path_module_check,
                 module_name,
+                test_name=test_name,
             )
             test_result += res
             test_status += status
@@ -177,6 +207,7 @@ async def test_exec(
             "./script/code_generator/check_git_change_code_generator.sh",
             path_module_check,
             module_to_generate,
+            test_name=test_name,
         )
         test_result += res
         test_status += status
@@ -195,7 +226,10 @@ async def test_exec(
     unique_database_name = f"test_demo_{uuid.uuid4()}"[:63]
     if not test_status:
         res, status = await run_command(
-            "./script/db_restore.py", "--database", unique_database_name
+            "./script/db_restore.py",
+            "--database",
+            unique_database_name,
+            test_name=test_name,
         )
         test_result += res
         test_status += status
@@ -215,6 +249,7 @@ async def test_exec(
             script_name,
             unique_database_name,
             str_test,
+            test_name=test_name,
         )
         test_result += res
         test_status += status
@@ -236,6 +271,7 @@ async def test_exec(
             path_module_to_generate,
             "-t",
             path_template_to_generate,
+            test_name=test_name,
         )
         test_result += res
         test_status += status
@@ -250,6 +286,7 @@ async def test_exec(
             module_to_generate,
             path_module_check,
             module_to_install,
+            test_name=test_name,
         )
         test_result += res
         test_status += status
@@ -262,11 +299,31 @@ async def test_exec(
             "--drop",
             "--database",
             unique_database_name,
+            test_name=test_name,
         )
         test_result += res
         test_status += status
 
     return test_result, test_status
+
+
+def check_git_change():
+    """
+    return True if success
+    """
+    loop = asyncio.get_event_loop()
+    task_list = [
+        run_command(
+            "./script/code_generator/check_git_change_code_generator.sh",
+            "./addons/TechnoLibre_odoo-code-generator-template",
+            test_name="Init check_git_change",
+        )
+    ]
+    commands = asyncio.gather(*task_list)
+    tpl_result = loop.run_until_complete(commands)
+    status = any([a[1] for a in tpl_result])
+    loop.close()
+    return not status
 
 
 async def run_demo_test() -> Tuple[str, int]:
@@ -283,6 +340,7 @@ async def run_demo_test() -> Tuple[str, int]:
     res, status = await test_exec(
         "./addons/TechnoLibre_odoo-code-generator-template",
         lst_init_module_name=lst_test_name,
+        test_name="demo_test",
     )
 
     return res, status
@@ -304,6 +362,7 @@ async def run_mariadb_test() -> Tuple[str, int]:
         lst_init_module_name=[
             "code_generator_portal",
         ],
+        test_name="mariadb_test",
     )
     test_result += res
     test_status += status
@@ -320,6 +379,7 @@ async def run_mariadb_test() -> Tuple[str, int]:
             "code_generator_portal",
             "demo_mariadb_sql_example_1",
         ],
+        test_name="mariadb_test",
     )
     test_result += res
     test_status += status
@@ -329,6 +389,7 @@ async def run_mariadb_test() -> Tuple[str, int]:
         "./addons/TechnoLibre_odoo-code-generator-template",
         module_to_install="demo_mariadb_sql_example_1",
         module_to_generate="code_generator_demo_mariadb_sql_example_1",
+        test_name="mariadb_test",
     )
     test_result += res
     test_status += status
@@ -338,7 +399,7 @@ async def run_mariadb_test() -> Tuple[str, int]:
 
 async def run_helloworld_test() -> Tuple[str, int]:
     res, status = await run_command(
-        "./test/code_generator/hello_world.sh",
+        "./test/code_generator/hello_world.sh", test_name="helloworld_test"
     )
 
     return res, status
@@ -358,6 +419,8 @@ def run_all_test() -> None:
 
     print_summary_task(task_list)
 
+    if asyncio.get_event_loop().is_closed():
+        asyncio.set_event_loop(asyncio.new_event_loop())
     loop = asyncio.get_event_loop()
     commands = asyncio.gather(*task_list)
     tpl_result = loop.run_until_complete(commands)
@@ -369,7 +432,12 @@ def run_all_test() -> None:
 def main():
     config = get_config()
     start_time = time.time()
-    run_all_test()
+    if not config.ignore_init_check_git:
+        success = check_git_change()
+    else:
+        success = True
+    if success:
+        run_all_test()
     end_time = time.time()
     diff_sec = end_time - start_time
     # print(f"Time execution {diff_sec:.3f}s")
