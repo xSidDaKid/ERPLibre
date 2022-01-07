@@ -318,7 +318,7 @@ class ProjectManagement:
             return False
         self.update_config()
 
-        bd_name_demo = f"new_project_code_generator_demo_{uuid.uuid1()}"[:63]
+        bd_name_demo = f"new_project_code_generator_demo_{uuid.uuid4()}"[:63]
         cmd = f"./script/db_restore.py --database {bd_name_demo}"
         _logger.info(cmd)
         os.system(cmd)
@@ -362,7 +362,7 @@ class ProjectManagement:
 
         # Execute all
         bd_name_template = (
-            f"new_project_code_generator_template_{uuid.uuid1()}"
+            f"new_project_code_generator_template_{uuid.uuid4()}"[:63]
         )[:63]
         cmd = f"./script/db_restore.py --database {bd_name_template}"
         os.system(cmd)
@@ -407,7 +407,7 @@ class ProjectManagement:
         else:
             _logger.info(f"Module cg exists '{cg_path}'")
 
-        bd_name_generator = f"new_project_code_generator_{uuid.uuid1()}"
+        bd_name_generator = f"new_project_code_generator_{uuid.uuid4()}"[:63]
         cmd = f"./script/db_restore.py --database {bd_name_generator}"
         _logger.info(cmd)
         os.system(cmd)
