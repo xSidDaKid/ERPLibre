@@ -5,6 +5,7 @@ import argparse
 import ast
 import logging
 import os
+import sys
 from pathlib import Path
 
 logging.basicConfig(level=logging.DEBUG)
@@ -122,8 +123,20 @@ def main():
         with open(hooks_file_path, "r") as source:
             f_lines = source.read()
             # Throw exception if not found
-            t_index = f_lines.index("template_model_name")
+            t_index = f_lines.find("template_model_name")
+            if t_index == -1:
+                _logger.error(
+                    "Cannot find template_model_name in file"
+                    f" {hooks_file_path}"
+                )
+                return -1
             t_index_equation = f_lines.index("=", t_index + 1)
+            if t_index_equation == -1:
+                _logger.error(
+                    "Cannot find template_model_name = in file"
+                    f" {hooks_file_path}"
+                )
+                return -1
             # find next character
             i = 1
             while f_lines[t_index_equation + i] in (" ", "\n"):
@@ -143,9 +156,20 @@ def main():
             t_index_second_quote = f_lines.index(
                 first_char, t_index_equation + i
             )
+            if t_index_second_quote == -1:
+                _logger.error(
+                    'Cannot find template_model_name = "##" in file'
+                    f" {hooks_file_path}"
+                )
+                return -1
             t_index_third_quote = f_lines.index(
                 second_char, t_index_second_quote + 1
             )
+            if t_index_third_quote == -1:
+                _logger.error(
+                    f"Cannot find third quote in file {hooks_file_path}"
+                )
+                return -1
             new_file_content = (
                 f'{f_lines[:t_index_second_quote]}"""{models_name}"""{f_lines[t_index_third_quote + len(second_char):]}'
             )
@@ -156,4 +180,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    status = main()
+    sys.exit(status)
