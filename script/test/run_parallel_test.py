@@ -395,6 +395,9 @@ async def run_mariadb_test() -> Tuple[str, int]:
     res, status = await test_exec(
         "./addons/TechnoLibre_odoo-code-generator-template",
         generated_module="demo_mariadb_sql_example_1",
+        lst_init_module_name=[
+            "code_generator_portal",
+        ],
         tested_module="code_generator_demo_mariadb_sql_example_1",
         test_name="mariadb_test-code-generator",
     )
