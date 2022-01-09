@@ -71,7 +71,7 @@ numpy==1.21.1
 # error with 5.x (ConstructorError: could not determine a constructor for the tag '!record')
 # pyyaml==5.4
 Jinja2==2.11.3
-lxml==4.6.5
+lxml==4.7.1
 cryptography==3.4.8
 psutil==5.6.6
 Pillow==8.3.2
