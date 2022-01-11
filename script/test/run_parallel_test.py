@@ -137,6 +137,7 @@ def print_log(lst_task, tpl_result):
 async def run_command(*args, test_name=None):
     # Create subprocess
     start_time = time.time()
+    cmd_str = " ".join(args)
     process = await asyncio.create_subprocess_exec(
         *args,
         # stdout must a pipe to be accessible as process.stdout
@@ -153,17 +154,16 @@ async def run_command(*args, test_name=None):
     status_str = "FAIL" if process.returncode else "PASS"
     if test_name:
         str_output_init = (
-            f"\n\n{status_str} {test_name} [{diff_sec:.3f}s] Execute"
-            f" \"{' '.join(args)}\"\n\n"
+            f"\n\n{status_str} [{test_name}] [{diff_sec:.3f}s] Execute"
+            f' "{cmd_str}"\n\n'
         )
     else:
         str_output_init = (
-            f"\n\n{status_str} [{diff_sec:.3f}s] Execute"
-            f" \"{' '.join(args)}\"\n\n"
+            f'\n\n{status_str} [{diff_sec:.3f}s] Execute "{cmd_str}"\n\n'
         )
     all_output = str_out + str_err
+    print(str_output_init)
     if process.returncode:
-        print(str_output_init)
         lst_error = []
         lst_warning = []
         extract_result(
