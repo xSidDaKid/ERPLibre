@@ -45,7 +45,7 @@ def get_config():
     )
     parser.add_argument(
         "--with_inherit",
-        dest="with_inherit",
+        action="store_true",
         help="Will search inherit model",
     )
     parser.add_argument(
