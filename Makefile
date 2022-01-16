@@ -113,6 +113,10 @@ db_drop_db_code_generator:
 db_drop_db_template:
 	./.venv/bin/python3 ./odoo/odoo-bin db --drop --database template
 
+.PHONY: db_drop_all
+db_drop_all:
+	./script/database/db_drop_all.py
+
 .PHONY: db_clean_cache
 db_clean_cache:
 	./script/db_restore.py --clean_cache
