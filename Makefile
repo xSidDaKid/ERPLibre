@@ -500,6 +500,7 @@ test_code_generator_code_template_demo_portal:
 	./script/db_restore.py --database test_template
 	./script/addons/install_addons_dev.sh test_template demo_portal
 	#./script/addons/install_addons_dev.sh test_template code_generator_template_demo_portal
+	./script/code_generator/search_class_model.py --quiet -d addons/TechnoLibre_odoo-code-generator-template/demo_portal -t addons/TechnoLibre_odoo-code-generator-template/code_generator_template_demo_portal --with_inherit
 	./script/code_generator/install_and_test_code_generator.sh test_template code_generator_template_demo_portal ./addons/TechnoLibre_odoo-code-generator-template code_generator_demo_portal
 
 .PHONY: test_code_generator_code_template_demo_internal_inherit
@@ -508,6 +509,7 @@ test_code_generator_code_template_demo_internal_inherit:
 	./script/db_restore.py --database test_template
 	./script/addons/install_addons_dev.sh test_template demo_internal_inherit
 	#./script/addons/install_addons_dev.sh test_template code_generator_template_demo_internal_inherit
+	./script/code_generator/search_class_model.py --quiet -d addons/TechnoLibre_odoo-code-generator-template/demo_internal_inherit -t addons/TechnoLibre_odoo-code-generator-template/code_generator_template_demo_internal_inherit --with_inherit
 	./script/code_generator/install_and_test_code_generator.sh test_template code_generator_template_demo_internal_inherit ./addons/TechnoLibre_odoo-code-generator-template code_generator_demo_internal_inherit
 
 .PHONY: test_code_generator_code_template_demo_sysadmin_cron
@@ -516,6 +518,7 @@ test_code_generator_code_template_demo_sysadmin_cron:
 	./script/db_restore.py --database test_template
 	./script/addons/install_addons_dev.sh test_template auto_backup
 	#./script/addons/install_addons_dev.sh test_template code_generator_template_demo_sysadmin_cron
+	./script/code_generator/search_class_model.py --quiet -d addons/OCA_server-tools/auto_backup -t addons/TechnoLibre_odoo-code-generator-template/code_generator_template_demo_sysadmin_cron --with_inherit
 	./script/code_generator/install_and_test_code_generator.sh test_template code_generator_template_demo_sysadmin_cron ./addons/TechnoLibre_odoo-code-generator-template code_generator_auto_backup
 
 .PHONY: test_code_generator_migrator_demo_mariadb_sql_example_1
@@ -532,7 +535,7 @@ test_code_generator_template_demo_mariadb_sql_example_1:
 	./script/code_generator/check_git_change_code_generator.sh ./addons/TechnoLibre_odoo-code-generator-template
 	./script/db_restore.py --database test_template
 	./script/addons/install_addons_dev.sh test_template code_generator_portal,demo_mariadb_sql_example_1
-	./script/code_generator/search_class_model.py --quiet -d addons/TechnoLibre_odoo-code-generator-template/demo_mariadb_sql_example_1 -t addons/TechnoLibre_odoo-code-generator-template/code_generator_template_demo_mariadb_sql_example_1
+	./script/code_generator/search_class_model.py --quiet -d addons/TechnoLibre_odoo-code-generator-template/demo_mariadb_sql_example_1 -t addons/TechnoLibre_odoo-code-generator-template/code_generator_template_demo_mariadb_sql_example_1 --with_inherit
 	#./script/addons/install_addons_dev.sh test_template code_generator_template_demo_mariadb_sql_example_1
 	./script/code_generator/install_and_test_code_generator.sh test_template code_generator_template_demo_mariadb_sql_example_1 ./addons/TechnoLibre_odoo-code-generator-template code_generator_demo_mariadb_sql_example_1
 

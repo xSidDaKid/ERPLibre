@@ -58,15 +58,66 @@ def get_config():
     return args
 
 
+def search_and_replace(
+    f_lines, hooks_file_path, models_name, search_word="template_model_name"
+):
+    if not models_name:
+        return f_lines
+    t_index = f_lines.find(search_word)
+    if t_index == -1:
+        _logger.error(f"Cannot find {search_word} in file {hooks_file_path}")
+        return -1
+    t_index_equation = f_lines.index("=", t_index + 1)
+    if t_index_equation == -1:
+        _logger.error(f"Cannot find {search_word} = in file {hooks_file_path}")
+        return -1
+    # find next character
+    i = 1
+    while f_lines[t_index_equation + i] in (" ", "\n"):
+        i += 1
+    first_char = f_lines[t_index_equation + i]
+    if first_char == "(":
+        second_char = ")"
+    elif f_lines[t_index_equation + i : t_index_equation + i + 3] == '"""':
+        first_char = '"""'
+        second_char = '"""'
+    else:
+        second_char = first_char
+    # t_index_first_quote = f_lines.index(first_char, t_index + 1)
+    t_index_second_quote = f_lines.index(first_char, t_index_equation + i)
+    if t_index_second_quote == -1:
+        _logger.error(
+            f'Cannot find {search_word} = "##" in file {hooks_file_path}'
+        )
+        return -1
+    t_index_third_quote = f_lines.index(second_char, t_index_second_quote + 1)
+    if t_index_third_quote == -1:
+        _logger.error(f"Cannot find third quote in file {hooks_file_path}")
+        return -1
+    # if "\n" in models_name:
+    #     new_file_content = (
+    #         f'{f_lines[:t_index_second_quote]}"""{models_name}"""{f_lines[t_index_third_quote + len(second_char):]}'
+    #     )
+    # else:
+    #     new_file_content = (
+    #         f'{f_lines[:t_index_second_quote]}"{models_name}"{f_lines[t_index_third_quote + len(second_char):]}'
+    #     )
+    new_file_content = (
+        f'{f_lines[:t_index_second_quote]}"{models_name}"{f_lines[t_index_third_quote + len(second_char):]}'
+    )
+    return new_file_content
+
+
 def main():
     config = get_config()
     if not os.path.exists(config.directory):
         _logger.error(f"Path directory {config.directory} not exist.")
         return -1
     lst_model_name = []
-    lst_search_target = (
-        ("_name", "_inherit") if config.with_inherit else ("_name",)
-    )
+    lst_model_inherit_name = []
+    lst_search_target = ("_name",)
+
+    lst_search_inherit_target = ("_inherit",) if config.with_inherit else []
 
     # lst_py_file = glob.glob(os.path.join(config.directory, "***", "*.py"))
     lst_py_file = Path(config.directory).rglob("*.py")
@@ -88,24 +139,48 @@ def main():
                             type(node) is ast.Assign
                             and node.targets
                             and type(node.targets[0]) is ast.Name
-                            and node.targets[0].id in lst_search_target
                             # and node.targets[0].id in ("_name",)
                             and type(node.value) is ast.Str
                         ):
-                            if node.value.s in lst_model_name:
-                                _logger.warning(
-                                    "Duplicated model name"
-                                    f" {node.value.s} from file {py_file}"
-                                )
-                            else:
-                                lst_model_name.append(node.value.s)
+                            if (
+                                lst_search_target
+                                and node.targets[0].id in lst_search_target
+                            ):
+                                if node.value.s in lst_model_name:
+                                    _logger.warning(
+                                        "Duplicated model name"
+                                        f" {node.value.s} from file {py_file}"
+                                    )
+                                else:
+                                    lst_model_name.append(node.value.s)
+
+                            if (
+                                lst_search_inherit_target
+                                and node.targets[0].id
+                                in lst_search_inherit_target
+                            ):
+                                if node.value.s in lst_model_inherit_name:
+                                    _logger.warning(
+                                        "Duplicated model inherit name"
+                                        f" {node.value.s} from file {py_file}"
+                                    )
+                                else:
+                                    lst_model_inherit_name.append(node.value.s)
     lst_model_name.sort()
-    models_name = ";\n ".join(lst_model_name)
+    lst_model_inherit_name.sort()
+    models_name = "; ".join(lst_model_name)
+    # TODO temporary fix, remove this when it's supported
+    lst_ignored_inherit = ["portal.mixin", "mail.thread"]
+    for ignored_inherit in lst_ignored_inherit:
+        if ignored_inherit in lst_model_inherit_name:
+            lst_model_inherit_name.remove(ignored_inherit)
+    models_inherit_name = "; ".join(lst_model_inherit_name)
     if not models_name:
         _logger.warning(f"Missing models class in {config.directory}")
     elif not config.quiet:
         # _logger.info(models_name)
         print(models_name)
+        print(models_inherit_name)
 
     if config.template_dir:
         if not os.path.exists(config.template_dir):
@@ -123,58 +198,22 @@ def main():
         with open(hooks_file_path, "r") as source:
             f_lines = source.read()
             # Throw exception if not found
-            t_index = f_lines.find("template_model_name")
-            if t_index == -1:
-                _logger.error(
-                    "Cannot find template_model_name in file"
-                    f" {hooks_file_path}"
-                )
-                return -1
-            t_index_equation = f_lines.index("=", t_index + 1)
-            if t_index_equation == -1:
-                _logger.error(
-                    "Cannot find template_model_name = in file"
-                    f" {hooks_file_path}"
-                )
-                return -1
-            # find next character
-            i = 1
-            while f_lines[t_index_equation + i] in (" ", "\n"):
-                i += 1
-            first_char = f_lines[t_index_equation + i]
-            if first_char == "(":
-                second_char = ")"
-            elif (
-                f_lines[t_index_equation + i : t_index_equation + i + 3]
-                == '"""'
-            ):
-                first_char = '"""'
-                second_char = '"""'
-            else:
-                second_char = first_char
-            # t_index_first_quote = f_lines.index(first_char, t_index + 1)
-            t_index_second_quote = f_lines.index(
-                first_char, t_index_equation + i
+            new_file_content = search_and_replace(
+                f_lines, hooks_file_path, models_name
             )
-            if t_index_second_quote == -1:
-                _logger.error(
-                    'Cannot find template_model_name = "##" in file'
-                    f" {hooks_file_path}"
+            if models_inherit_name:
+                new_file_content = search_and_replace(
+                    new_file_content,
+                    hooks_file_path,
+                    models_inherit_name,
+                    search_word="template_inherit_model_name",
                 )
-                return -1
-            t_index_third_quote = f_lines.index(
-                second_char, t_index_second_quote + 1
-            )
-            if t_index_third_quote == -1:
-                _logger.error(
-                    f"Cannot find third quote in file {hooks_file_path}"
-                )
-                return -1
-            new_file_content = (
-                f'{f_lines[:t_index_second_quote]}"""{models_name}"""{f_lines[t_index_third_quote + len(second_char):]}'
-            )
+
         with open(hooks_file_path, "w") as source:
             source.write(new_file_content)
+
+        # Call black
+        os.system(f"./script/maintenance/black.sh {hooks_file_path}")
 
     return 0
 
