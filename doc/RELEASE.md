@@ -45,6 +45,7 @@ make format
 To generate database images in directory `./image_db`, run:
 
 ```bash
+make config_gen_all
 make image_db_create_all
 ```
 
