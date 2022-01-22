@@ -11,14 +11,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 Install module `web_timeline` and `web_diagram_position`.
 
-### ADDED
+### Added
 
 - Code generator support view pivot, graph, search, kanban, timeline, activity, calendar and diagram.
 - Code generator better support portal view field.
 
+### Changed
+
+- Update to Python==3.7.12
+- Update pip dependency with security update
+  - Pillow==9.0.0
+  - lxml==4.7.1
+
 ### Fixed
 
 - Downgrade Werkzeug==0.11.15, only this version is supported by Odoo 12.0. This fix some http request behind a proxy.
+- TO VALIDATE fix docker config path
+- 
 
 ## [1.2.1] - 2021-09-28
 
