@@ -14,7 +14,11 @@ Install module `web_timeline` and `web_diagram_position`.
 ### Added
 
 - Code generator support view pivot, graph, search, kanban, timeline, activity, calendar and diagram.
-- Code generator better support portal view field.
+- Code generator better support portal view field and form creation
+- Code generator generate generic snippets for demo_portal
+- Code generator generate code_generator with code_generator_code_generator
+- Code generator test mariadb migrator
+- Code generator support inherit
 
 ### Changed
 
