@@ -27,14 +27,16 @@ fi
 #--------------------------------------------------
 echo -e "\n---- Update Server ----"
 
-# add-apt-repository can install add-apt-repository Ubuntu 18.x
-sudo apt-get install software-properties-common curl -y
-# universe package is for Ubuntu 18.x
-sudo add-apt-repository universe
-# libpng12-0 dependency for wkhtmltopdf
-sudo add-apt-repository "deb http://mirrors.kernel.org/ubuntu/ xenial main"
-sudo apt-get update
-sudo apt-get upgrade -y
+if [ "18.04" == "${UBUNTU_VERSION}" ]; then
+  # add-apt-repository can install add-apt-repository Ubuntu 18.x
+  sudo apt-get install software-properties-common curl -y
+  # universe package is for Ubuntu 18.x
+  sudo add-apt-repository universe
+  # libpng12-0 dependency for wkhtmltopdf
+  sudo add-apt-repository "deb http://mirrors.kernel.org/ubuntu/ xenial main"
+  sudo apt-get update
+  sudo apt-get upgrade -y
+fi
 
 #--------------------------------------------------
 # Install PostgreSQL Server
