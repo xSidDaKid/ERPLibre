@@ -45,7 +45,7 @@ echo -e "\n---- Install PostgreSQL Server ----"
 sudo apt-get install postgresql libpq-dev postgis -y
 
 echo -e "\n---- Creating the ERPLibre PostgreSQL User  ----"
-sudo su - postgres -c "createuser -s ${EL_USER}" 2> /dev/null || true
+sudo su - postgres -c "createuser -s ${EL_USER}" 2>/dev/null || true
 
 #--------------------------------------------------
 # Install Dependencies
@@ -79,15 +79,16 @@ fi
 #--------------------------------------------------
 if [ ${EL_INSTALL_WKHTMLTOPDF} = "True" ]; then
   echo -e "\n---- Installing wkhtml ----"
-  INSTALLED=$(dpkg -s wkhtmltox|grep installed)
+  INSTALLED=$(dpkg -s wkhtmltox | grep installed)
   if [ "" == "${INSTALLED}" ]; then
-      echo -e "\n---- Install wkhtml and place shortcuts on correct place ----"
-      _url=${WKHTMLTOX_X64}
-      sudo wget ${_url}
-      sudo gdebi --n `basename ${_url}`
-      sudo ln -s /usr/local/bin/wkhtmltopdf /usr/bin
-      sudo ln -s /usr/local/bin/wkhtmltoimage /usr/bin
-  else echo -e "\n---- Already installed wkhtml ----"
+    echo -e "\n---- Install wkhtml and place shortcuts on correct place ----"
+    _url=${WKHTMLTOX_X64}
+    sudo wget ${_url}
+    sudo gdebi --n $(basename ${_url})
+    sudo ln -s /usr/local/bin/wkhtmltopdf /usr/bin
+    sudo ln -s /usr/local/bin/wkhtmltoimage /usr/bin
+  else
+    echo -e "\n---- Already installed wkhtml ----"
   fi
 else
   echo "Wkhtmltopdf isn't installed due to the choice of the user!"

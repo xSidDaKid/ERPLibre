@@ -116,6 +116,9 @@ if [[ $retVal -ne 0 ]]; then
     echo "Poetry installation error."
     exit 1
 fi
+${VENV_PATH}/bin/pip install vatnumber
+${VENV_PATH}/bin/pip install suds-jurko
+
 # Delete artifacts created by pip, cause error in next "poetry install"
 rm -rf artifacts
 
