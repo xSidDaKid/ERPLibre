@@ -36,6 +36,8 @@ if [ "18.04" == "${UBUNTU_VERSION}" ]; then
   sudo add-apt-repository "deb http://mirrors.kernel.org/ubuntu/ xenial main"
   sudo apt-get update
   sudo apt-get upgrade -y
+elif [ "22.04" == "${UBUNTU_VERSION}" ]; then
+  sudo apt install gdebi-core
 fi
 
 #--------------------------------------------------
